@@ -9,10 +9,10 @@ import keyUtil from './key_util';
  * @param datas {string | Buffer}
  * @returns {string}
  */
-const digest = (algorithm: string, key: Buffer | KeyObject, datas: string | Buffer): string => {
+const digest = (algorithm: string, key: Buffer | KeyObject, datas: (string | Buffer)[]): string => {
   const hmac = createHmac(algorithm, key);
   for (const data of datas) {
-    hmac.update(data);
+    hmac.update(data.toString());
   }
 
   return hmac.digest('hex');
@@ -25,7 +25,7 @@ const digest = (algorithm: string, key: Buffer | KeyObject, datas: string | Buff
  * @param datas {string | Buffer}
  * @return {string}
  */
-const commonGenerateDigest = (algorithm: string, key: string | Buffer, datas: string | Buffer): string => {
+const commonGenerateDigest = (algorithm: string, key: Buffer | KeyObject, datas: (string | Buffer)[]): string => {
   keyUtil.checkKeyInput(key);
 
   return digest(algorithm, key, datas);

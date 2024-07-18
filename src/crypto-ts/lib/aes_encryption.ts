@@ -1,5 +1,6 @@
-import { createCipheriv, createDecipheriv } from 'crypto';
+import { createCipheriv, createDecipheriv, Cipher } from 'crypto';
 import { Buffer } from 'buffer';
+import * as stream from "node:stream";
 import algorithms from './alg';
 import keyUtil from './key_util';
 
@@ -48,8 +49,8 @@ const encrypt = (alg: string, key: string, data: string | Buffer) => {
     authTagLength: DEFAULT_AUTH_TAG_LENGTH,
   };
 
-  const cipher = createCipheriv(alg, keyBuf, nonceBuf, cipherOptions);
-  let encrypted = cipher.update(data, 'utf8', 'hex');
+  const cipher = createCipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
+  let encrypted = cipher.update(data.toString(), 'utf8', 'hex');
   encrypted += cipher.final('hex');
   // https://nodejs.org/api/crypto.html#ciphergetauthtag
   if (SUPPORTED_AUTH_TAG_MODES.includes(metaAlg.mode)) {
@@ -58,6 +59,45 @@ const encrypt = (alg: string, key: string, data: string | Buffer) => {
 
   return Buffer.concat([nonceBuf, Buffer.from(encrypted, 'hex')], nonceBuf.length + Buffer.from(encrypted, 'hex').length);
 };
+
+/**
+ * Shim for difficult createCipheriv method
+ * 
+ * @param algorithm 
+ * @param key 
+ * @param iv 
+ * @param options 
+ * @returns 
+ */
+const createCipherivShim = (
+  algorithm: string,
+  key: Buffer,
+  iv: Buffer,
+  options: any,
+): any => {
+  const cipher = createCipheriv(algorithm, key, iv, options);
+  return cipher;
+}
+
+/**
+ * Shim for difficult createCipheriv method
+ * 
+ * @param algorithm 
+ * @param key 
+ * @param iv 
+ * @param options 
+ * @returns 
+ */
+const createDecipherivShim = (
+  algorithm: string,
+  key: Buffer,
+  iv: Buffer,
+  options: any,
+): any => {
+  const cipher = createDecipheriv(algorithm, key, iv, options);
+  return cipher;
+}
+
 
 /**
  * @param alg {string}
@@ -81,10 +121,10 @@ const decrypt = (alg: string, key: string, data: string | Buffer) => {
     authTagLength: DEFAULT_AUTH_TAG_LENGTH,
   };
 
-  const buf = Buffer.from(data, 'hex');
+  const buf = Buffer.from(data.toString(), 'hex');
   const nonceBuf = buf.subarray(0, metaAlg.ivLen);
 
-  const decipher = createDecipheriv(alg, keyBuf, nonceBuf, cipherOptions);
+  const decipher = createDecipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
 
   let encryptedBuf;
   // https://nodejs.org/api/crypto.html#deciphersetauthtag
