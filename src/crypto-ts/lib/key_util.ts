@@ -1,35 +1,47 @@
 import { randomFillSync } from 'crypto';
 import { Buffer } from 'buffer';
 
-export const KEY_SIZE_1KB = 1 << 10; // 1024
-export const KEY_SIZE_2KB = 1 << 11; // 2048
-export const KEY_SIZE_4KB = 1 << 12; // 4096
+const KEY_SIZE_1KB = 1 << 10; // 1024
+const KEY_SIZE_2KB = 1 << 11; // 2048
+const KEY_SIZE_4KB = 1 << 12; // 4096
 
-export const HMAC_MINIMUM_KEY_SIZE = 8;
-export const AES_128_KEY_SIZE = 16;
-export const AES_192_KEY_SIZE = 24;
-export const AES_256_KEY_SIZE = 32;
+const HMAC_MINIMUM_KEY_SIZE = 8;
+const AES_128_KEY_SIZE = 16;
+const AES_192_KEY_SIZE = 24;
+const AES_256_KEY_SIZE = 32;
 
-export const MIN_CUSTOM_KEY_LEN = 32;
+const MIN_CUSTOM_KEY_LEN = 32;
 
-export const IV_SIZE = 12;
+const IV_SIZE = 12;
 
 /**
  * @param size {number}
  * @return {string}
  */
-export const generateRandomIV = (size: number = IV_SIZE): string => {
+const generateRandomIV = (size: number = IV_SIZE): string => {
   const buf = Buffer.alloc(size);
   return randomFillSync(buf).toString('hex');
 };
 
 /**
  * Validate & check key input must be greater than minimum custom key length
- * @param key {string | Buffer}
+ * @param key {any}
  * @return {void | Error}
  */
-export const checkKeyInput = (key: string | Buffer): void | Error => {
+const checkKeyInput = (key: any): void | Error => {
   if (key.length < MIN_CUSTOM_KEY_LEN) {
     throw new Error(`key cannot be less than ${MIN_CUSTOM_KEY_LEN}`);
   }
 };
+
+export default {
+	checkKeyInput,
+	generateRandomIV,
+	KEY_SIZE_1KB,
+	KEY_SIZE_2KB, 
+	KEY_SIZE_4KB,
+	HMAC_MINIMUM_KEY_SIZE,
+	AES_128_KEY_SIZE,
+	AES_192_KEY_SIZE,
+	AES_256_KEY_SIZE
+}

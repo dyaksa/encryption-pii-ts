@@ -6,10 +6,10 @@ import { Buffer } from 'buffer';
  * @return {string}
  */
 const bufferToString = (buffer: string | Buffer): string => {
-  if (Buffer.isBuffer(buffer)) {
-    return buffer.toString();
-  }
-  return buffer;
+	if (Buffer.isBuffer(buffer)) {
+		return buffer.toString();
+	}
+	return buffer;
 };
 
 /**
@@ -18,12 +18,12 @@ const bufferToString = (buffer: string | Buffer): string => {
  * @return {void | Error}
  */
 const checkBuffer = (buffer: Buffer): void | Error => {
-  if (!Buffer.isBuffer(buffer)) {
-    throw new Error('data param should be buffer');
-  }
+	if (!Buffer.isBuffer(buffer)) {
+		throw new Error('data param should be buffer');
+	}
 };
 
 export {
-  checkBuffer,
-  bufferToString,
+	checkBuffer,
+	bufferToString,
 };

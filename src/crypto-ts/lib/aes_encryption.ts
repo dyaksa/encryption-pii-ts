@@ -1,6 +1,5 @@
-import { createCipheriv, createDecipheriv, Cipher } from 'crypto';
+import { createCipheriv, createDecipheriv } from 'crypto';
 import { Buffer } from 'buffer';
-import * as stream from "node:stream";
 import algorithms from './alg';
 import keyUtil from './key_util';
 
@@ -98,7 +97,6 @@ const createDecipherivShim = (
   return cipher;
 }
 
-
 /**
  * @param alg {string}
  * @param key {string}
@@ -142,174 +140,64 @@ const decrypt = (alg: string, key: string, data: string | Buffer) => {
   return Buffer.concat([decrypted, remaining], decrypted.length + remaining.length);
 };
 
-// CBC
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes128Cbc = (key: string, data: string | Buffer) => encrypt(algorithms.AES_128_CBC, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes192Cbc = (key: string, data: string | Buffer) => encrypt(algorithms.AES_192_CBC, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes256Cbc = (key: string, data: string | Buffer) => encrypt(algorithms.AES_256_CBC, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes128Cbc = (key: string, data: string | Buffer) => decrypt(algorithms.AES_128_CBC, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes192Cbc = (key: string, data: string | Buffer) => decrypt(algorithms.AES_192_CBC, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes256Cbc = (key: string, data: string | Buffer) => decrypt(algorithms.AES_256_CBC, key, data);
-
-// GCM
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes128Gcm = (key: string, data: string | Buffer) => encrypt(algorithms.AES_128_GCM, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes192Gcm = (key: string, data: string | Buffer) => encrypt(algorithms.AES_192_GCM, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes256Gcm = (key: string, data: string | Buffer) => encrypt(algorithms.AES_256_GCM, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes128Gcm = (key: string, data: string | Buffer) => decrypt(algorithms.AES_128_GCM, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes192Gcm = (key: string, data: string | Buffer) => decrypt(algorithms.AES_192_GCM, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes256Gcm = (key: string, data: string | Buffer) => decrypt(algorithms.AES_256_GCM, key, data);
-
-// CCM
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes128Ccm = (key: string, data: string | Buffer) => encrypt(algorithms.AES_128_CCM, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes192Ccm = (key: string, data: string | Buffer) => encrypt(algorithms.AES_192_CCM, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes256Ccm = (key: string, data: string | Buffer) => encrypt(algorithms.AES_256_CCM, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes128Ccm = (key: string, data: string | Buffer) => decrypt(algorithms.AES_128_CCM, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes192Ccm = (key: string, data: string | Buffer) => decrypt(algorithms.AES_192_CCM, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes256Ccm = (key: string, data: string | Buffer) => decrypt(algorithms.AES_256_CCM, key, data);
-
-// OCB
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes128Ocb = (key: string, data: string | Buffer) => encrypt(algorithms.AES_128_OCB, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes192Ocb = (key: string, data: string | Buffer) => encrypt(algorithms.AES_192_OCB, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-export const encryptWithAes256Ocb = (key: string, data: string | Buffer) => encrypt(algorithms.AES_256_OCB, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes128Ocb = (key: string, data: string | Buffer) => decrypt(algorithms.AES_128_OCB, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes192Ocb = (key: string, data: string | Buffer) => decrypt(algorithms.AES_192_OCB, key, data);
-
-/**
- * @param key {string}
- * @param data {string | Buffer}
- * @return {Buffer}
- */
-export const decryptWithAes256Ocb = (key: string, data: string | Buffer) => decrypt(algorithms.AES_256_OCB, key, data);
+export const encryptWithAes = (type: string, key: string, data: string | Buffer) => {
+	switch (type) {
+	  case 'AES_128_CBC':
+		return encrypt(algorithms.AES_128_CBC, key, data);
+	  case 'AES_192_CBC':
+		return encrypt(algorithms.AES_192_CBC, key, data);
+	  case 'AES_256_CBC':
+		return encrypt(algorithms.AES_256_CBC, key, data);
+	  case 'AES_128_GCM':
+		return encrypt(algorithms.AES_128_GCM, key, data);
+	  case 'AES_192_GCM':
+		return encrypt(algorithms.AES_192_GCM, key, data);
+	  case 'AES_256_GCM':
+		return encrypt(algorithms.AES_256_GCM, key, data);
+	  case 'AES_128_CCM':
+		return encrypt(algorithms.AES_128_CCM, key, data);
+	  case 'AES_192_CCM':
+		return encrypt(algorithms.AES_192_CCM, key, data);
+	  case 'AES_256_CCM':
+		return encrypt(algorithms.AES_256_CCM, key, data);
+	  case 'AES_128_OCB':
+		return encrypt(algorithms.AES_128_OCB, key, data);
+	  case 'AES_192_OCB':
+		return encrypt(algorithms.AES_192_OCB, key, data);
+	  case 'AES_256_OCB':
+		return encrypt(algorithms.AES_256_OCB, key, data);
+	  default:
+		throw new Error('Unsupported encryption type');
+	}
+  };
+  
+  export const decryptWithAes = (type: string, key: string, data: string | Buffer) => {
+	switch (type) {
+	  case 'AES_128_CBC':
+		return decrypt(algorithms.AES_128_CBC, key, data);
+	  case 'AES_192_CBC':
+		return decrypt(algorithms.AES_192_CBC, key, data);
+	  case 'AES_256_CBC':
+		return decrypt(algorithms.AES_256_CBC, key, data);
+	  case 'AES_128_GCM':
+		return decrypt(algorithms.AES_128_GCM, key, data);
+	  case 'AES_192_GCM':
+		return decrypt(algorithms.AES_192_GCM, key, data);
+	  case 'AES_256_GCM':
+		return decrypt(algorithms.AES_256_GCM, key, data);
+	  case 'AES_128_CCM':
+		return decrypt(algorithms.AES_128_CCM, key, data);
+	  case 'AES_192_CCM':
+		return decrypt(algorithms.AES_192_CCM, key, data);
+	  case 'AES_256_CCM':
+		return decrypt(algorithms.AES_256_CCM, key, data);
+	  case 'AES_128_OCB':
+		return decrypt(algorithms.AES_128_OCB, key, data);
+	  case 'AES_192_OCB':
+		return decrypt(algorithms.AES_192_OCB, key, data);
+	  case 'AES_256_OCB':
+		return decrypt(algorithms.AES_256_OCB, key, data);
+	  default:
+		throw new Error('Unsupported decryption type');
+	}
+  };

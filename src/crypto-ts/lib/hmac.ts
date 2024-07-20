@@ -10,12 +10,12 @@ import keyUtil from './key_util';
  * @returns {string}
  */
 const digest = (algorithm: string, key: Buffer | KeyObject, datas: (string | Buffer)[]): string => {
-  const hmac = createHmac(algorithm, key);
-  for (const data of datas) {
-    hmac.update(data.toString());
-  }
+	const hmac = createHmac(algorithm, key);
+	for (const data of datas) {
+		hmac.update(data.toString());
+	}
 
-  return hmac.digest('hex');
+	return hmac.digest('hex');
 };
 
 /**
@@ -25,48 +25,21 @@ const digest = (algorithm: string, key: Buffer | KeyObject, datas: (string | Buf
  * @param datas {string | Buffer}
  * @return {string}
  */
-const commonGenerateDigest = (algorithm: string, key: Buffer | KeyObject, datas: (string | Buffer)[]): string => {
-  keyUtil.checkKeyInput(key);
+export const commonGenerateDigest = (algorithm: string, key: Buffer | KeyObject, ...datas: (string | Buffer)[]): string => { 
+	keyUtil.checkKeyInput(key);
 
-  return digest(algorithm, key, datas);
+	switch (algorithm.toUpperCase()) {
+		case 'MD5':
+			return digest(alg.MD5_DIGEST, key, datas);
+		case 'SHA1':
+			return digest(alg.SHA1_DIGEST, key, datas);
+		case 'SHA256':
+			return digest(alg.SHA256_DIGEST, key, datas);
+		case 'SHA384':
+			return digest(alg.SHA384_DIGEST, key, datas);
+		case 'SHA512':
+			return digest(alg.SHA512_DIGEST, key, datas);
+		default:
+			throw new Error(`Unsupported algorithm: ${algorithm}`);
+	}
 };
-
-/**
- * @param key {Buffer | KeyObject}
- * @param datas {string | Buffer}
- * @returns {string}
- */
-export const md5 = (key: Buffer | KeyObject, ...datas: (string | Buffer)[]): string =>
-  commonGenerateDigest(alg.MD5_DIGEST, key, datas);
-
-/**
- * @param key {Buffer | KeyObject}
- * @param datas {string | Buffer}
- * @return {string}
- */
-export const sha1 = (key: Buffer | KeyObject, ...datas: (string | Buffer)[]): string =>
-  commonGenerateDigest(alg.SHA1_DIGEST, key, datas);
-
-/**
- * @param key {Buffer | KeyObject}
- * @param datas {string | Buffer}
- * @return {string}
- */
-export const sha256 = (key: Buffer | KeyObject, ...datas: (string | Buffer)[]): string =>
-  commonGenerateDigest(alg.SHA256_DIGEST, key, datas);
-
-/**
- * @param key {Buffer | KeyObject}
- * @param datas {string | Buffer}
- * @return {string}
- */
-export const sha384 = (key: Buffer | KeyObject, ...datas: (string | Buffer)[]): string =>
-  commonGenerateDigest(alg.SHA384_DIGEST, key, datas);
-
-/**
- * @param key {Buffer | KeyObject}
- * @param datas {string | Buffer}
- * @return {string}
- */
-export const sha512 = (key: Buffer | KeyObject, ...datas: (string | Buffer)[]): string =>
-  commonGenerateDigest(alg.SHA512_DIGEST, key, datas);
