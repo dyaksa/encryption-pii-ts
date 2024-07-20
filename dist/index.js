@@ -14,5 +14,5 @@ exports.default = {
     generateSQLConditions: query_1.generateSQLConditions,
     buildLikeQuery: query_1.buildLikeQuery,
     searchContents: query_1.searchContents,
-    isHashExist: query_1.isHashExist,
+    isHashExist: query_1.isHashExist
 };

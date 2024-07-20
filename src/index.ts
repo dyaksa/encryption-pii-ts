@@ -13,5 +13,5 @@ export default {
 	generateSQLConditions,
 	buildLikeQuery,
 	searchContents,
-	isHashExist,
+	isHashExist
 }
