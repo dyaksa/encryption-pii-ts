@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"repository": {
 		"type": "git",
-		"url": "ssh://git@gitlab.playcourt.id:31022/fab-digital/libs/backend/fabd-horizontal-pii-agent-js.git"
+		"url": "ssh://git@gitlab.playcourt.id:31022/fab-digital/libs/backend/pii-agent-ts.git"
 	},
 	"keywords": [
 		"fabd",
@@ -37,12 +37,8 @@
 		"mocha": "^9.2.0"
 	},
 	"dependencies": {
-		"axios": "^0.26.1",
-		"crypto-js": "^4.1.1",
 		"env-cmd": "^10.0.1",
-		"lodash": "^4.17.21",
-		"moment": "^2.29.4",
-		"querystring": "^0.2.1",
+		"reflect-metadata": "^0.2.2",
 		"typescript": "^5.1.6"
 	}
 }
