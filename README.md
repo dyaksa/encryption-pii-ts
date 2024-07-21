@@ -16,6 +16,7 @@ AGENT PII (TypeScript)
 - [x] BidxCol
 - [x] TxtHeapTable
 
+
 ### Installation
 
 1. Clone the repo
@@ -66,6 +67,7 @@ ts-node src/examples/test_query.ts
 - [x] DBColumn
 - [x] BidxCol
 - [x] TxtHeapTable
+- [ ] ....
 
 ## Change Log
 
