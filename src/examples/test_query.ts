@@ -14,17 +14,13 @@ const main = () => {
     entity.isActive = true;
     entity.content = 'Example content';
 
-    const crypto: any = {
-        hmacFunc: () => (value: string) => `hashed_${value}`
-    };
-
     const tableName = 'example_table';
 
-    const { query: insertQuery, args: insertArgs } = CryptoTs.insertWithHeap(crypto, tableName, entity);
+    const { query: insertQuery, args: insertArgs } = CryptoTs.insertWithHeap(tableName, entity);
     console.log('Insert Query:', insertQuery);
     console.log('Insert Args:', insertArgs);
 
-    const { query: updateQuery, args: updateArgs } = CryptoTs.updateWithHeap(crypto, tableName, entity, '123e4567-e89b-12d3-a456-426614174000');
+    const { query: updateQuery, args: updateArgs } = CryptoTs.updateWithHeap(tableName, entity, '123e4567-e89b-12d3-a456-426614174000');
     console.log('Update Query:', updateQuery);
     console.log('Update Args:', updateArgs);
 

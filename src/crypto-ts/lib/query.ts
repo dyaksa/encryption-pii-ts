@@ -38,7 +38,6 @@ export const validateEmail = (email: string): boolean => {
 };
 
 export const insertWithHeap = <T>(
-    c: Crypto,
     tableName: string,
     entity: any,
 ): { query: string, args: any[] } => {
@@ -46,6 +45,10 @@ export const insertWithHeap = <T>(
     const args: any[] = [];
     const placeholders: string[] = [];
     const th: TextHeap[] = [];
+	
+    const c: any = {
+        hmacFunc: () => (value: string) => `hashed_${value}`
+    };
 
     for (const key in entity) {
         if (entity.hasOwnProperty(key)) {
@@ -63,7 +66,7 @@ export const insertWithHeap = <T>(
                     const fieldValue = entity[key];
                     if (fieldValue && fieldValue.to) {
                         const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
-                        const { str, heaps } = buildHeap(c, fieldValue.to(), txtHeapTable);
+                        const { str, heaps } = buildHeap(fieldValue.to(), txtHeapTable);
                         th.push(...heaps);
                         args.push(str);
                     }
@@ -79,7 +82,6 @@ export const insertWithHeap = <T>(
 };
 
 export const updateWithHeap = (
-    c: Crypto,
     tableName: string,
     entity: any,
     id: string
@@ -88,7 +90,9 @@ export const updateWithHeap = (
     const placeholders: string[] = [];
     const args: any[] = [];
     const th: TextHeap[] = [];
-
+	const c: any = {
+        hmacFunc: () => (value: string) => `hashed_${value}`
+    };
     for (const key in entity) {
         if (entity.hasOwnProperty(key)) {
             const fieldName = getMetadata(entity, key, 'db');
@@ -105,7 +109,7 @@ export const updateWithHeap = (
                     const fieldValue = entity[key];
                     if (fieldValue && fieldValue.to) {
                         const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
-                        const { str, heaps } = buildHeap(c, fieldValue.to(), txtHeapTable);
+                        const { str, heaps } = buildHeap(fieldValue.to(), txtHeapTable);
                         th.push(...heaps);
                         args.push(str);
                     }
@@ -126,10 +130,13 @@ export const updateWithHeap = (
     return { query, args: [...args, id] };
 };
 
-export const buildHeap = (c: Crypto, value: string, typeHeap: string): { str: string; heaps: TextHeap[] } => {
+export const buildHeap = (value: string, typeHeap: string): { str: string; heaps: TextHeap[] } => {
 	const values = split(value);
 	const builder = new Set<string>();
 	const heaps: TextHeap[] = [];
+	const c: any = {
+        hmacFunc: () => (value: string) => `hashed_${value}`
+    };
 
 	values.forEach(val => {
 		const hash = c.hmacFunc()(val);

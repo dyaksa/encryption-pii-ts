@@ -3,11 +3,11 @@ declare const CryptoTs: {
     encryptWithAes: (type: string, data: string | Buffer) => Buffer;
     decryptWithAes: (type: string, data: string | Buffer) => Buffer;
     commonGenerateDigest: (algorithm: string, ...datas: (string | Buffer)[]) => string;
-    insertWithHeap: <T>(c: import("./crypto-ts/lib/types").Crypto, tableName: string, entity: any) => {
+    insertWithHeap: <T>(tableName: string, entity: any) => {
         query: string;
         args: any[];
     };
-    updateWithHeap: (c: import("./crypto-ts/lib/types").Crypto, tableName: string, entity: any, id: string) => {
+    updateWithHeap: (tableName: string, entity: any, id: string) => {
         query: string;
         args: any[];
     };
@@ -15,7 +15,7 @@ declare const CryptoTs: {
         query: string;
         args: any[][];
     };
-    buildHeap: (c: import("./crypto-ts/lib/types").Crypto, value: string, typeHeap: string) => {
+    buildHeap: (value: string, typeHeap: string) => {
         str: string;
         heaps: import("./crypto-ts/lib/types").TextHeap[];
     };

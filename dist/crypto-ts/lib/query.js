@@ -35,11 +35,14 @@ const validateEmail = (email) => {
     return emailRegexPattern.test(email);
 };
 exports.validateEmail = validateEmail;
-const insertWithHeap = (c, tableName, entity) => {
+const insertWithHeap = (tableName, entity) => {
     const fieldNames = [];
     const args = [];
     const placeholders = [];
     const th = [];
+    const c = {
+        hmacFunc: () => (value) => `hashed_${value}`
+    };
     for (const key in entity) {
         if (entity.hasOwnProperty(key)) {
             const fieldName = getMetadata(entity, key, 'db');
@@ -54,7 +57,7 @@ const insertWithHeap = (c, tableName, entity) => {
                     const fieldValue = entity[key];
                     if (fieldValue && fieldValue.to) {
                         const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
-                        const { str, heaps } = (0, exports.buildHeap)(c, fieldValue.to(), txtHeapTable);
+                        const { str, heaps } = (0, exports.buildHeap)(fieldValue.to(), txtHeapTable);
                         th.push(...heaps);
                         args.push(str);
                     }
@@ -67,11 +70,14 @@ const insertWithHeap = (c, tableName, entity) => {
     return { query, args };
 };
 exports.insertWithHeap = insertWithHeap;
-const updateWithHeap = (c, tableName, entity, id) => {
+const updateWithHeap = (tableName, entity, id) => {
     const fieldNames = [];
     const placeholders = [];
     const args = [];
     const th = [];
+    const c = {
+        hmacFunc: () => (value) => `hashed_${value}`
+    };
     for (const key in entity) {
         if (entity.hasOwnProperty(key)) {
             const fieldName = getMetadata(entity, key, 'db');
@@ -86,7 +92,7 @@ const updateWithHeap = (c, tableName, entity, id) => {
                     const fieldValue = entity[key];
                     if (fieldValue && fieldValue.to) {
                         const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
-                        const { str, heaps } = (0, exports.buildHeap)(c, fieldValue.to(), txtHeapTable);
+                        const { str, heaps } = (0, exports.buildHeap)(fieldValue.to(), txtHeapTable);
                         th.push(...heaps);
                         args.push(str);
                     }
@@ -104,10 +110,13 @@ const updateWithHeap = (c, tableName, entity, id) => {
     return { query, args: [...args, id] };
 };
 exports.updateWithHeap = updateWithHeap;
-const buildHeap = (c, value, typeHeap) => {
+const buildHeap = (value, typeHeap) => {
     const values = (0, exports.split)(value);
     const builder = new Set();
     const heaps = [];
+    const c = {
+        hmacFunc: () => (value) => `hashed_${value}`
+    };
     values.forEach(val => {
         const hash = c.hmacFunc()(val);
         builder.add(hash);
