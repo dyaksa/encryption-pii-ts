@@ -1,5 +1,3 @@
 export class CryptoTs {
-    public Init() {
-        
-    }
+	public Init() {}
 }
