@@ -65,6 +65,8 @@ export const insertWithHeap = (
                         const { str, heaps } = buildHeap(fieldValue.to(), txtHeapTable);
                         th.push(...heaps);
                         args.push(str);
+                    } else {
+                        args.push(null);
                     }
                 }
 

@@ -13,6 +13,7 @@ const main = () => {
     entity.score = 85.5;
     entity.isActive = true;
     entity.content = 'Example content';
+    console.log(entity);
     const tableName = 'example_table';
     const { query: insertQuery, args: insertArgs } = index_1.default.insertWithHeap(tableName, entity);
     console.log('Insert Query:', insertQuery);

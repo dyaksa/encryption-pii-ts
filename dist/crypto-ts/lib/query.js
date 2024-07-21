@@ -58,6 +58,9 @@ const insertWithHeap = (tableName, entity) => {
                         th.push(...heaps);
                         args.push(str);
                     }
+                    else {
+                        args.push(null);
+                    }
                 }
                 placeholders.push(`$${placeholders.length + 1}`);
             }

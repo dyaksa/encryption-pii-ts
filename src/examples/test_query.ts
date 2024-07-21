@@ -14,6 +14,8 @@ const main = () => {
     entity.isActive = true;
     entity.content = 'Example content';
 
+	console.log(entity);
+
     const tableName = 'example_table';
 
     const { query: insertQuery, args: insertArgs } = CryptoTs.insertWithHeap(tableName, entity);
