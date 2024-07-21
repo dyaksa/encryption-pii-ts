@@ -6,6 +6,8 @@ export class Entity {
     id: string;
 
     @CryptoTs.DBColumn('name')
+    @CryptoTs.BidxCol('bidx_name')
+    @CryptoTs.TxtHeapTable('name_text_heap')
     name: string;
 
     @CryptoTs.DBColumn('created_at')
@@ -22,6 +24,6 @@ export class Entity {
 
     @CryptoTs.DBColumn('content')
     @CryptoTs.BidxCol('bidx_content')
-    @CryptoTs.TxtHeapTable('example_heap')
+    @CryptoTs.TxtHeapTable('content_text_heap')
     content: string;
 }

@@ -21,6 +21,8 @@ __decorate([
 ], Entity.prototype, "id", void 0);
 __decorate([
     index_1.default.DBColumn('name'),
+    index_1.default.BidxCol('bidx_name'),
+    index_1.default.TxtHeapTable('name_text_heap'),
     __metadata("design:type", String)
 ], Entity.prototype, "name", void 0);
 __decorate([
@@ -42,6 +44,6 @@ __decorate([
 __decorate([
     index_1.default.DBColumn('content'),
     index_1.default.BidxCol('bidx_content'),
-    index_1.default.TxtHeapTable('example_heap'),
+    index_1.default.TxtHeapTable('content_text_heap'),
     __metadata("design:type", String)
 ], Entity.prototype, "content", void 0);

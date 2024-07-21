@@ -5,15 +5,12 @@ declare const CryptoTs: {
     commonGenerateDigest: (algorithm: string, ...datas: (string | Buffer)[]) => string;
     insertWithHeap: (tableName: string, entity: any) => {
         query: string;
-        args: any[];
     };
     updateWithHeap: (tableName: string, entity: any, id: string) => {
         query: string;
-        args: any[];
     };
     saveToHeap: (textHeaps: import("./crypto-ts/lib/types").TextHeap[]) => {
         query: string;
-        args: any[][];
     };
     buildHeap: (value: string, typeHeap: string) => {
         str: string;
@@ -24,13 +21,11 @@ declare const CryptoTs: {
         query: string;
         args: any[];
     };
-    searchContents: (table: string, args: import("./crypto-ts/lib/types").FindTextHeapByContentParams) => {
+    searchContents: (table: string, content: string) => {
         query: string;
-        args: any[];
     };
-    isHashExist: (typeHeap: string, args: import("./crypto-ts/lib/types").FindTextHeapByHashParams) => {
+    isHashExist: (typeHeap: string, hash: string) => {
         query: string;
-        args: any[];
     };
     DBColumn: typeof DBColumn;
     BidxCol: typeof BidxCol;
