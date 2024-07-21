@@ -1,5 +1,5 @@
 import { BidxCol, DBColumn, TxtHeapTable } from "./crypto-ts/lib/decorator";
-declare const _default: {
+declare const CryptoTs: {
     encryptWithAes: (type: string, data: string | Buffer) => Buffer;
     decryptWithAes: (type: string, data: string | Buffer) => Buffer;
     commonGenerateDigest: (algorithm: string, ...datas: (string | Buffer)[]) => string;
@@ -36,4 +36,4 @@ declare const _default: {
     BidxCol: typeof BidxCol;
     TxtHeapTable: typeof TxtHeapTable;
 };
-export default _default;
+export default CryptoTs;

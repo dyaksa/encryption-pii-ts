@@ -1,6 +1,6 @@
 {
-	"name": "@digimon/pii-agent-ts",
-	"version": "0.0.1",
+	"name": "pii-agent-ts",
+	"version": "1.0.0",
 	"description": "FABD Horizontal PII Agent Libraries",
 	"main": "dist/index.js",
 	"repository": {
@@ -19,15 +19,11 @@
 		"*.md"
 	],
 	"scripts": {
-		"prepare": "husky install",
 		"start:dev": "tsc -w",
 		"build": "tsc",
 		"format": "prettier --write \"src/**/*.ts\"",
 		"lint": "tslint -p tsconfig.json -c tslint.json",
 		"test": "mocha"
-	},
-	"publishConfig": {
-		"@digimon:registry": "https://gitlab.playcourt.id/api/v4/projects/24431/packages/npm/"
 	},
 	"devDependencies": {
 		"@types/node": "^20.6.0",
