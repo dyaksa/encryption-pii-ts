@@ -3,7 +3,7 @@ declare const CryptoTs: {
     encryptWithAes: (type: string, data: string | Buffer) => Buffer;
     decryptWithAes: (type: string, data: string | Buffer) => Buffer;
     commonGenerateDigest: (algorithm: string, ...datas: (string | Buffer)[]) => string;
-    insertWithHeap: <T>(tableName: string, entity: any) => {
+    insertWithHeap: (tableName: string, entity: any) => {
         query: string;
         args: any[];
     };

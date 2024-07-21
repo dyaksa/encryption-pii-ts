@@ -37,7 +37,7 @@ export const validateEmail = (email: string): boolean => {
 	return emailRegexPattern.test(email);
 };
 
-export const insertWithHeap = <T>(
+export const insertWithHeap = (
     tableName: string,
     entity: any,
 ): { query: string, args: any[] } => {
@@ -45,10 +45,6 @@ export const insertWithHeap = <T>(
     const args: any[] = [];
     const placeholders: string[] = [];
     const th: TextHeap[] = [];
-	
-    const c: any = {
-        hmacFunc: () => (value: string) => `hashed_${value}`
-    };
 
     for (const key in entity) {
         if (entity.hasOwnProperty(key)) {
@@ -90,9 +86,7 @@ export const updateWithHeap = (
     const placeholders: string[] = [];
     const args: any[] = [];
     const th: TextHeap[] = [];
-	const c: any = {
-        hmacFunc: () => (value: string) => `hashed_${value}`
-    };
+	
     for (const key in entity) {
         if (entity.hasOwnProperty(key)) {
             const fieldName = getMetadata(entity, key, 'db');
@@ -134,6 +128,7 @@ export const buildHeap = (value: string, typeHeap: string): { str: string; heaps
 	const values = split(value);
 	const builder = new Set<string>();
 	const heaps: TextHeap[] = [];
+
 	const c: any = {
         hmacFunc: () => (value: string) => `hashed_${value}`
     };

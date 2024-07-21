@@ -40,9 +40,6 @@ const insertWithHeap = (tableName, entity) => {
     const args = [];
     const placeholders = [];
     const th = [];
-    const c = {
-        hmacFunc: () => (value) => `hashed_${value}`
-    };
     for (const key in entity) {
         if (entity.hasOwnProperty(key)) {
             const fieldName = getMetadata(entity, key, 'db');
@@ -75,9 +72,6 @@ const updateWithHeap = (tableName, entity, id) => {
     const placeholders = [];
     const args = [];
     const th = [];
-    const c = {
-        hmacFunc: () => (value) => `hashed_${value}`
-    };
     for (const key in entity) {
         if (entity.hasOwnProperty(key)) {
             const fieldName = getMetadata(entity, key, 'db');

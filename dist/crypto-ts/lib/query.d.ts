@@ -3,7 +3,7 @@ import 'reflect-metadata';
 export declare const generateSQLConditions: (data: any) => string[];
 export declare const split: (value: string) => string[];
 export declare const validateEmail: (email: string) => boolean;
-export declare const insertWithHeap: <T>(tableName: string, entity: any) => {
+export declare const insertWithHeap: (tableName: string, entity: any) => {
     query: string;
     args: any[];
 };
