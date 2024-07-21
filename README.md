@@ -1,38 +1,71 @@
 AGENT PII (TypeScript)
 
 ### API Client
-- [ ] Encrypt
-- [ ] Decrypt
-- [ ] ...
-
+- [x] encryptWithAes
+- [x] decryptWithAes
+- [x] commonGenerateDigest
+- [x] insertWithHeap
+- [x] updateWithHeap
+- [x] saveToHeap
+- [x] buildHeap
+- [x] generateSQLConditions
+- [x] buildLikeQuery
+- [x] searchContent
+- [x] isHashExist
+- [x] DBColumn
+- [x] BidxCol
+- [x] TxtHeapTable
 
 ### Installation
 
 1. Clone the repo
 2. Run npm/yarn install
-
 ```bash
 cd pii-agent-ts
 npm install
 ```
+
+3. copy .env.example to .env
+
+```sh
+cp .env.example .env
+```
+
+4. Fill in the value
+```sh
+CRYPTO_AES_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+CRYPTO_HMAC_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
 
 ### Run Examples
 1. Build package
 ```bash
 npm run build
 ```
-2. Open file `examples/...`
-3. Change config (set key)  
-```js
 
-```
-4. Run Example `xxx.example.js`
+2. Run Example `src/examples/**.ts88`
 ```bash
-node examples/xxx.example.js
+ts-node src/examples/test_encrypt.ts
+ts-node src/examples/test_decrypt.ts
+ts-node src/examples/test_query.ts
 ```
 
 ### TODO
-- [ ] ...
+- [x] encryptWithAes
+- [x] decryptWithAes
+- [x] commonGenerateDigest
+- [x] insertWithHeap
+- [x] updateWithHeap
+- [x] saveToHeap
+- [x] buildHeap
+- [x] generateSQLConditions
+- [x] buildLikeQuery
+- [x] searchContent
+- [x] isHashExist
+- [x] DBColumn
+- [x] BidxCol
+- [x] TxtHeapTable
 
 ## Change Log
 

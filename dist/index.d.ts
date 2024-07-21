@@ -1,7 +1,8 @@
+import { BidxCol, DBColumn, TxtHeapTable } from "./crypto-ts/lib/decorator";
 declare const _default: {
-    encryptWithAes: (type: string, key: string, data: string | Buffer) => Buffer;
-    decryptWithAes: (type: string, key: string, data: string | Buffer) => Buffer;
-    commonGenerateDigest: (algorithm: string, key: Buffer | import("crypto").KeyObject, ...datas: (string | Buffer)[]) => string;
+    encryptWithAes: (type: string, data: string | Buffer) => Buffer;
+    decryptWithAes: (type: string, data: string | Buffer) => Buffer;
+    commonGenerateDigest: (algorithm: string, ...datas: (string | Buffer)[]) => string;
     insertWithHeap: <T>(c: import("./crypto-ts/lib/types").Crypto, tableName: string, entity: any) => {
         query: string;
         args: any[];
@@ -31,5 +32,8 @@ declare const _default: {
         query: string;
         args: any[];
     };
+    DBColumn: typeof DBColumn;
+    BidxCol: typeof BidxCol;
+    TxtHeapTable: typeof TxtHeapTable;
 };
 export default _default;

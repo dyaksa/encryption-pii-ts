@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const aes_encryption_1 = require("./crypto-ts/lib/aes_encryption");
+const decorator_1 = require("./crypto-ts/lib/decorator");
 const hmac_1 = require("./crypto-ts/lib/hmac");
 const query_1 = require("./crypto-ts/lib/query");
 exports.default = {
@@ -14,5 +15,8 @@ exports.default = {
     generateSQLConditions: query_1.generateSQLConditions,
     buildLikeQuery: query_1.buildLikeQuery,
     searchContents: query_1.searchContents,
-    isHashExist: query_1.isHashExist
+    isHashExist: query_1.isHashExist,
+    DBColumn: decorator_1.DBColumn,
+    BidxCol: decorator_1.BidxCol,
+    TxtHeapTable: decorator_1.TxtHeapTable
 };

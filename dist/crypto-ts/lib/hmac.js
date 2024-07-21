@@ -4,10 +4,12 @@ exports.commonGenerateDigest = void 0;
 const crypto_1 = require("crypto");
 const alg_1 = require("./alg");
 const key_util_1 = require("./key_util");
+const dotenv = require("dotenv");
+dotenv.config();
 /**
  * HMAC digest
  * @param algorithm {string}
- * @param key {Buffer | KeyObject}
+ * @param key {string | Buffer}
  * @param datas {string | Buffer}
  * @returns {string}
  */
@@ -21,11 +23,11 @@ const digest = (algorithm, key, datas) => {
 /**
  *
  * @param algorithm {string}
- * @param key {string | Buffer}
  * @param datas {string | Buffer}
  * @return {string}
  */
-const commonGenerateDigest = (algorithm, key, ...datas) => {
+const commonGenerateDigest = (algorithm, ...datas) => {
+    const key = process.env.CRYPTO_HMAC_KEY;
     key_util_1.default.checkKeyInput(key);
     switch (algorithm.toUpperCase()) {
         case 'MD5':
