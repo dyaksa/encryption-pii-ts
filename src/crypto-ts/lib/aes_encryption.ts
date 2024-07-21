@@ -2,9 +2,12 @@ import { createCipheriv, createDecipheriv } from 'crypto';
 import { Buffer } from 'buffer';
 import algorithms from './alg';
 import keyUtil from './key_util';
+import * as dotenv from 'dotenv';
 
 const DEFAULT_AUTH_TAG_LENGTH = 16;
 const SUPPORTED_AUTH_TAG_MODES = ['gcm', 'ccm', 'ocb', 'chacha20-poly1305'];
+
+dotenv.config();
 
 interface AlgorithmMeta {
   mode: string;
@@ -56,7 +59,9 @@ const encrypt = (alg: string, key: string, data: string | Buffer) => {
     encrypted += Buffer.from(cipher.getAuthTag().toString('hex'));
   }
 
-  return Buffer.concat([nonceBuf, Buffer.from(encrypted, 'hex')], nonceBuf.length + Buffer.from(encrypted, 'hex').length);
+	const resultBuffer = Buffer.concat([nonceBuf, Buffer.from(encrypted, 'hex')], nonceBuf.length + Buffer.from(encrypted, 'hex').length);
+	return resultBuffer;
+
 };
 
 /**
@@ -140,7 +145,8 @@ const decrypt = (alg: string, key: string, data: string | Buffer) => {
   return Buffer.concat([decrypted, remaining], decrypted.length + remaining.length);
 };
 
-export const encryptWithAes = (type: string, key: string, data: string | Buffer) => {
+export const encryptWithAes = (type: string, data: string | Buffer) => {
+	const key = process.env.CRYPTO_AES_KEY;
 	switch (type) {
 	  case 'AES_128_CBC':
 		return encrypt(algorithms.AES_128_CBC, key, data);
@@ -171,7 +177,8 @@ export const encryptWithAes = (type: string, key: string, data: string | Buffer)
 	}
   };
   
-  export const decryptWithAes = (type: string, key: string, data: string | Buffer) => {
+  export const decryptWithAes = (type: string, data: string | Buffer) => {
+	const key = process.env.CRYPTO_AES_KEY;
 	switch (type) {
 	  case 'AES_128_CBC':
 		return decrypt(algorithms.AES_128_CBC, key, data);

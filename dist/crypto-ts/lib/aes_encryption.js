@@ -5,8 +5,10 @@ const crypto_1 = require("crypto");
 const buffer_1 = require("buffer");
 const alg_1 = require("./alg");
 const key_util_1 = require("./key_util");
+const dotenv = require("dotenv");
 const DEFAULT_AUTH_TAG_LENGTH = 16;
 const SUPPORTED_AUTH_TAG_MODES = ['gcm', 'ccm', 'ocb', 'chacha20-poly1305'];
+dotenv.config();
 /**
  * @param alg {string}
  * @return {{mode: *, ivLen: (number), expectedKeyLen: number}}
@@ -44,7 +46,8 @@ const encrypt = (alg, key, data) => {
     if (SUPPORTED_AUTH_TAG_MODES.includes(metaAlg.mode)) {
         encrypted += buffer_1.Buffer.from(cipher.getAuthTag().toString('hex'));
     }
-    return buffer_1.Buffer.concat([nonceBuf, buffer_1.Buffer.from(encrypted, 'hex')], nonceBuf.length + buffer_1.Buffer.from(encrypted, 'hex').length);
+    const resultBuffer = buffer_1.Buffer.concat([nonceBuf, buffer_1.Buffer.from(encrypted, 'hex')], nonceBuf.length + buffer_1.Buffer.from(encrypted, 'hex').length);
+    return resultBuffer;
 };
 /**
  * Shim for difficult createCipheriv method
@@ -108,7 +111,8 @@ const decrypt = (alg, key, data) => {
     let remaining = decipher.final();
     return buffer_1.Buffer.concat([decrypted, remaining], decrypted.length + remaining.length);
 };
-const encryptWithAes = (type, key, data) => {
+const encryptWithAes = (type, data) => {
+    const key = process.env.CRYPTO_AES_KEY;
     switch (type) {
         case 'AES_128_CBC':
             return encrypt(alg_1.default.AES_128_CBC, key, data);
@@ -139,7 +143,8 @@ const encryptWithAes = (type, key, data) => {
     }
 };
 exports.encryptWithAes = encryptWithAes;
-const decryptWithAes = (type, key, data) => {
+const decryptWithAes = (type, data) => {
+    const key = process.env.CRYPTO_AES_KEY;
     switch (type) {
         case 'AES_128_CBC':
             return decrypt(alg_1.default.AES_128_CBC, key, data);

@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Entity = void 0;
 // entity.ts
-const index_1 = require("./index");
+const index_1 = require("../index");
 class Entity {
 }
 exports.Entity = Entity;

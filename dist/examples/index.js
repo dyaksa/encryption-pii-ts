@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // index.ts
-const index_1 = require("./index");
+const index_1 = require("../index");
 const entity_1 = require("./entity");
 // Example usage
 const main = () => {

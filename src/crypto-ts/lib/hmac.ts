@@ -1,15 +1,18 @@
 import { createHmac, KeyObject } from 'crypto';
 import alg from './alg';
 import keyUtil from './key_util';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 /**
  * HMAC digest
  * @param algorithm {string}
- * @param key {Buffer | KeyObject}
+ * @param key {string | Buffer}
  * @param datas {string | Buffer}
  * @returns {string}
  */
-const digest = (algorithm: string, key: Buffer | KeyObject, datas: (string | Buffer)[]): string => {
+const digest = (algorithm: string, key: string | Buffer, datas: (string | Buffer)[]): string => {
 	const hmac = createHmac(algorithm, key);
 	for (const data of datas) {
 		hmac.update(data.toString());
@@ -21,11 +24,11 @@ const digest = (algorithm: string, key: Buffer | KeyObject, datas: (string | Buf
 /**
  *
  * @param algorithm {string}
- * @param key {string | Buffer}
  * @param datas {string | Buffer}
  * @return {string}
  */
-export const commonGenerateDigest = (algorithm: string, key: Buffer | KeyObject, ...datas: (string | Buffer)[]): string => { 
+export const commonGenerateDigest = (algorithm: string, ...datas: (string | Buffer)[]): string => { 
+	const key = process.env.CRYPTO_HMAC_KEY;
 	keyUtil.checkKeyInput(key);
 
 	switch (algorithm.toUpperCase()) {
