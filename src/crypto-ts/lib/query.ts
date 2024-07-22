@@ -99,7 +99,7 @@ export const insertWithHeap = async (
 
 export const updateWithHeap = async(
     dt: DataSource,
-	tableName: string,
+    tableName: string,
     entity: any,
     id: string
 ): Promise<any> => {
@@ -107,7 +107,6 @@ export const updateWithHeap = async(
     const placeholders: string[] = [];
     const args: any[] = [];
     const th: TextHeap[] = [];
-	
 
 	for (const key in entity) {
 		if (entity.hasOwnProperty(key)) {
@@ -137,16 +136,18 @@ export const updateWithHeap = async(
 		}
 	}
 
-	await saveToHeap(dt, th);
+    await saveToHeap(dt, th);
 
-    let query = `UPDATE ${tableName} SET `;
-    for (let i = 0; i < fieldNames.length; i++) {
-        query += `${fieldNames[i]} = '${args[i]}'  `;
-    }
-    query = query.slice(0, -2); // Remove last comma and space
-	query += `WHERE id = '${id}';`;
+	const setClause = fieldNames.map((field, index) => `${field} = ${placeholders[index]}`).join(', ');
 
-	const execQuery = await dt.query(query, args);
+    const query = `UPDATE ${tableName} SET ${setClause} WHERE id = $${args.length + 1};`;
+    args.push(id); // Tambahkan parameter ID di akhir
+	
+	console.log(query)
+
+    const execQuery = await dt.query(query, args);
+
+	console.log(execQuery)
 
     return execQuery;
 };

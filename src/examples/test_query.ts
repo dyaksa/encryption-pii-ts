@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import CryptoTs from '../index';
 import { User } from './entity';
 import { CreateUserDto } from './createUser.dto';
+import { UpdateUserDto } from './updateUser.dto';
 
 // Example usage
 const main = async () => {
@@ -34,10 +35,14 @@ const main = async () => {
 	// console.log('Insert With Heap:', insertWithHeap);
 
 
-    user.name = 'Reka Alamsyah Updated'; // Update name to a new value
-    user.email = 'reka.alamsyah.updated@gmail.com'; // Update email to a new value
+	const updateUser = new UpdateUserDto();
+    updateUser.name = 'Reka Alamsyah sadsadas paham'; // Update name to a new value
+    updateUser.email = 'reka.alamsyah.updateasdasdsa@gmail.com'; // Update email to a new value
+    updateUser.address = 'Cisereuh aseeemmm';
+    updateUser.age = 30;
+    updateUser.password = 'securepassword';
 
-    const updateWithHeap = await CryptoTs.updateWithHeap(dt, tableName, user, '3adba255-bc37-4bd1-b749-1a2315cbac87');
+    const updateWithHeap = await CryptoTs.updateWithHeap(dt, tableName, updateUser, '4207c94f-4f08-4793-90fa-6b5ceacadf00');
     console.log('Update With Heap:', updateWithHeap);
 };
 
