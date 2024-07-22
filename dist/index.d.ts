@@ -3,15 +3,9 @@ declare const CryptoTs: {
     encryptWithAes: (type: string, data: string | Buffer) => Buffer;
     decryptWithAes: (type: string, data: string | Buffer) => Buffer;
     commonGenerateDigest: (algorithm: string, ...datas: (string | Buffer)[]) => string;
-    insertWithHeap: (tableName: string, entity: any) => {
-        query: string;
-    };
-    updateWithHeap: (tableName: string, entity: any, id: string) => {
-        query: string;
-    };
-    saveToHeap: (textHeaps: import("./crypto-ts/lib/types").TextHeap[]) => {
-        query: string;
-    };
+    insertWithHeap: (dt: import("typeorm").DataSource, tableName: string, entity: any) => Promise<any>;
+    updateWithHeap: (dt: import("typeorm").DataSource, tableName: string, entity: any, id: string) => Promise<any>;
+    saveToHeap: (dt: import("typeorm").DataSource, textHeaps: import("./crypto-ts/lib/types").TextHeap[]) => Promise<void>;
     buildHeap: (value: string, typeHeap: string) => {
         str: string;
         heaps: import("./crypto-ts/lib/types").TextHeap[];

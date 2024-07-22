@@ -6,9 +6,6 @@ export interface FindTextHeapRow {
     content: string;
     hash: string;
 }
-export interface FindTextHeapByContentParams {
-    content: string;
-}
 export interface TextHeap {
     content: string;
     type: string;

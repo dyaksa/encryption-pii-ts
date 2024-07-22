@@ -9,62 +9,34 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
-// entity.ts
+exports.UpdateUserDto = void 0;
 const index_1 = require("../index");
-const typeorm_1 = require("typeorm");
-let User = class User {
-};
-exports.User = User;
+class UpdateUserDto {
+}
+exports.UpdateUserDto = UpdateUserDto;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
-    index_1.default.DBColumn('id'),
-    __metadata("design:type", String)
-], User.prototype, "id", void 0);
-__decorate([
-    (0, typeorm_1.Column)('bytea'),
     index_1.default.DBColumn('name'),
     index_1.default.BidxCol('bidx_name'),
     index_1.default.TxtHeapTable('name_text_heap'),
-    __metadata("design:type", Buffer)
-], User.prototype, "name", void 0);
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "name", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
     index_1.default.DBColumn('email'),
     index_1.default.BidxCol('bidx_email'),
     index_1.default.TxtHeapTable('email_text_heap'),
     __metadata("design:type", String)
-], User.prototype, "bidx_name", void 0);
+], UpdateUserDto.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)('bytea'),
     index_1.default.DBColumn('address'),
     index_1.default.BidxCol('bidx_address'),
     index_1.default.TxtHeapTable('address_text_heap'),
-    __metadata("design:type", Buffer)
-], User.prototype, "email", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], User.prototype, "bidx_email", void 0);
+], UpdateUserDto.prototype, "address", void 0);
 __decorate([
-    (0, typeorm_1.Column)('bytea'),
-    __metadata("design:type", Buffer)
-], User.prototype, "address", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], User.prototype, "bidx_address", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'int', nullable: true, default: 25 }) // Define 'age' column as nullable
-    ,
     index_1.default.DBColumn('age'),
     __metadata("design:type", Number)
-], User.prototype, "age", void 0);
+], UpdateUserDto.prototype, "age", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
     index_1.default.DBColumn('password'),
     __metadata("design:type", String)
-], User.prototype, "password", void 0);
-exports.User = User = __decorate([
-    (0, typeorm_1.Entity)('users')
-], User);
+], UpdateUserDto.prototype, "password", void 0);
