@@ -127,6 +127,7 @@ const decrypt = (alg: string, key: string, data: string | Buffer) => {
   const buf = Buffer.from(data.toString(), 'hex');
   const nonceBuf = buf.subarray(0, metaAlg.ivLen);
 
+
   const decipher = createDecipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
 
   let encryptedBuf;

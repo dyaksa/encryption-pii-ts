@@ -1,26 +1,40 @@
 
 // index.ts
+import { DataSource } from 'typeorm';
 import CryptoTs from '../index';
-import { Entity } from './entity';
+import { User } from './entity';
+import { CreateUserDto } from './createUser.dto';
 
 // Example usage
-const main = () => {
-    const entity = new Entity();
-    entity.id = '123e4567-e89b-12d3-a456-426614174000';
-    entity.name = 'John Doe';
-    entity.createdAt = new Date().toISOString();
-    entity.age = 30;
-    entity.score = 85.5;
-    entity.isActive = true;
-    entity.content = 'Example content';
+const main = async () => {
+	// Initialize the DataSource
+	const dt = new DataSource({
+		type: 'postgres',
+		host: 'localhost',
+		port: 5432,
+		username: 'postgres',
+		password: 'mysecretpassword',
+		database: 'sandbox_nest',
+		synchronize: true,
+		entities: [User],
+	});
 
-    const tableName = 'example_table';
+	await dt.initialize();
 
-    const insertWithHeap = CryptoTs.insertWithHeap(tableName, entity);
-	console.log('Insert With Heap:', insertWithHeap.query);
+	const user = new CreateUserDto();
+    user.name = 'Khairul Rahadian';
+    user.email = 'rahadian.khairul@gmail.com';
+    user.address = 'Bandung Barat';
+    user.age = 30;
+    user.password = 'securepassword';
 
-    const updateWithHea = CryptoTs.updateWithHeap(tableName, entity, '123e4567-e89b-12d3-a456-426614174000');
-    console.log('Update With Heap', updateWithHea.query);
+    const tableName = 'users';
+
+    const insertWithHeap = await CryptoTs.insertWithHeap(dt, tableName, user);
+	console.log('Insert With Heap:', insertWithHeap);
+
+    // const updateWithHea = CryptoTs.updateWithHeap(tableName, entity, '123e4567-e89b-12d3-a456-426614174000');
+    // console.log('Update With Heap', updateWithHea.query);
 
     // const textHeaps = [
     //     { content: 'example content', type: 'example_heap', hash: 'hashed_example' }
@@ -34,8 +48,8 @@ const main = () => {
     // console.log('Like Query:', likeQuery);
     // console.log('Like Args:', likeArgs);
 
-    const searchContents = CryptoTs.searchContents('example_heap', 'example');
-    console.log('Search Content:', searchContents.query);
+    // const searchContents = CryptoTs.searchContents('example_heap', 'example');
+    // console.log('Search Content:', searchContents.query);
 
     // const { query: hashExistQuery, args: hashExistArgs } = CryptoTs.isHashExist('example_heap', { hash: 'hashed_example' });
     // console.log('Hash Exist Query:', hashExistQuery);
