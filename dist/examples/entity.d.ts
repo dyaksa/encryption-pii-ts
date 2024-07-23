@@ -1,11 +1,11 @@
 export declare class User {
     id: string;
     name: Buffer;
-    bidx_name: string;
+    name_bidx: string;
     email: Buffer;
-    bidx_email: string;
+    email_bidx: string;
     address: Buffer;
-    bidx_address: string;
+    address_bidx: string;
     age: number | null;
     password: string;
 }

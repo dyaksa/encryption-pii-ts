@@ -1,6 +1,5 @@
 // entity.ts
 import CryptoTs from '../index';
-
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
@@ -16,25 +15,25 @@ export class User {
         name: Buffer;
 
     @Column()
+        name_bidx: string;
+
+    @Column('bytea')	
     @CryptoTs.DBColumn('email')
     @CryptoTs.BidxCol('bidx_email')
     @CryptoTs.TxtHeapTable('email_text_heap')    
-        bidx_name: string;
-
-    @Column('bytea')
-    @CryptoTs.DBColumn('address')
-    @CryptoTs.BidxCol('bidx_address')
-    @CryptoTs.TxtHeapTable('address_text_heap')
         email: Buffer;
 
     @Column()
-        bidx_email: string;
+        email_bidx: string;
 
     @Column('bytea')
+	@CryptoTs.DBColumn('address')
+    @CryptoTs.BidxCol('bidx_address')
+    @CryptoTs.TxtHeapTable('address_text_heap')
         address: Buffer;
     
     @Column()
-        bidx_address: string;
+        address_bidx: string;
 
     @Column({ type: 'int', nullable: true,  default: 25  }) // Define 'age' column as nullable
     @CryptoTs.DBColumn('age')

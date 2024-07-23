@@ -2,27 +2,13 @@ import { commonGenerateDigest } from './hmac';
 import { TextHeap } from './types';
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
-import { decryptWithAes, encryptWithAes } from './aes_encryption';
+import { encryptWithAes } from './aes_encryption';
 import { DataSource } from 'typeorm';
 
 dotenv.config();
 
 const getMetadata = (entity: any, key: string, metaKey: string) => {
     return Reflect.getMetadata(metaKey, entity, key);
-};
-
-export const generateSQLConditions = (data: any): string[] => {
-    const conditions: string[] = [];
-    for (const key in data) {
-        if (data.hasOwnProperty(key)) {
-            const value = data[key];
-            const bidxCol = getMetadata(data, key, 'bidx_col');
-            if (bidxCol) {
-                conditions.push(`${bidxCol} ILIKE '%${value}%'`);
-            }
-        }
-    }
-    return conditions;
 };
 
 export const split = (value: string): string[] => {
@@ -50,108 +36,6 @@ export const validateEmail = (email: string): boolean => {
 	return emailRegexPattern.test(email);
 };
 
-export const insertWithHeap = async (
-	dt: DataSource,
-	tableName: string,
-	entity: any
-): Promise<any> => {
-	const fieldNames: string[] = [];
-	const args: any[] = [];
-	const placeholders: string[] = [];
-	const th: TextHeap[] = [];
-
-	for (const key in entity) {
-		if (entity.hasOwnProperty(key)) {
-			const fieldName = getMetadata(entity, key, 'db');
-			if (fieldName) {
-				fieldNames.push(fieldName);
-				let value = entity[key];
-
-				const bidxCol = getMetadata(entity, key, 'bidx_col');
-				if (bidxCol) {
-					fieldNames.push(bidxCol);
-					const encryptedValue = encryptWithAes('AES_256_CBC', value);
-					args.push(encryptedValue);
-					placeholders.push(`$${args.length}`);
-				}
-
-				const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
-				if (txtHeapTable) {
-					const { str, heaps } = buildHeap(value, txtHeapTable);
-					th.push(...heaps);
-					value = str;
-				}
-
-				args.push(value);
-				placeholders.push(`$${args.length}`);
-			}
-		}
-	}
-
-	await saveToHeap(dt, th);
-
-	const query = `INSERT INTO ${tableName} (${fieldNames.join(', ')}) VALUES (${placeholders.join(', ')}) RETURNING id;`;
-
-	const execQuery = await dt.query(query, args);
-
-	return execQuery;
-};
-
-export const updateWithHeap = async(
-    dt: DataSource,
-    tableName: string,
-    entity: any,
-    id: string
-): Promise<any> => {
-    const fieldNames: string[] = [];
-    const placeholders: string[] = [];
-    const args: any[] = [];
-    const th: TextHeap[] = [];
-
-	for (const key in entity) {
-		if (entity.hasOwnProperty(key)) {
-			const fieldName = getMetadata(entity, key, 'db');
-			if (fieldName) {
-				fieldNames.push(fieldName);
-				let value = entity[key];
-
-				const bidxCol = getMetadata(entity, key, 'bidx_col');
-				if (bidxCol) {
-					fieldNames.push(bidxCol);
-					const encryptedValue = encryptWithAes('AES_256_CBC', value);
-					args.push(encryptedValue);
-					placeholders.push(`$${args.length}`);
-				}
-
-				const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
-				if (txtHeapTable) {
-					const { str, heaps } = buildHeap(value, txtHeapTable);
-					th.push(...heaps);
-					value = str;
-				}
-
-				args.push(value);
-				placeholders.push(`$${args.length}`);
-			}
-		}
-	}
-
-    await saveToHeap(dt, th);
-
-	const setClause = fieldNames.map((field, index) => `${field} = ${placeholders[index]}`).join(', ');
-
-    const query = `UPDATE ${tableName} SET ${setClause} WHERE id = $${args.length + 1};`;
-    args.push(id); // Tambahkan parameter ID di akhir
-	
-	console.log(query)
-
-    const execQuery = await dt.query(query, args);
-
-	console.log(execQuery)
-
-    return execQuery;
-};
-
 export const buildHeap = (value: string, typeHeap: string): { str: string; heaps: TextHeap[] } => {
 	const values = split(value);
 	const builder = new Set<string>();
@@ -169,43 +53,100 @@ export const buildHeap = (value: string, typeHeap: string): { str: string; heaps
 
 export const saveToHeap = async (dt: DataSource, textHeaps: TextHeap[]): Promise<void> => {
     await dt.transaction(async (entityManager) => {
-        for (const th of textHeaps) {
-            const existQuery = `SELECT 1 FROM ${th.type} WHERE hash = $1`;
-            const existRes = await entityManager.query(existQuery, [th.hash]);
+        // Group textHeaps by their type
+        const textHeapsByType = textHeaps.reduce((acc, th) => {
+            if (!acc[th.type]) {
+                acc[th.type] = [];
+            }
+            acc[th.type].push(th);
+            return acc;
+        }, {} as { [key: string]: TextHeap[] });
 
-            if (existRes.length === 0) {
-                const insertQuery = `INSERT INTO ${th.type} (content, hash) VALUES ($1, $2) ON CONFLICT DO NOTHING`;
-                await entityManager.query(insertQuery, [th.content, th.hash]);
+        // Iterate over each group and perform the operations
+        for (const type in textHeapsByType) {
+            const group = textHeapsByType[type];
+
+            // Extract all hashes from the current group
+            const hashes = group.map(th => th.hash);
+
+            // Check existence of all hashes in one query
+            const existQuery = `SELECT hash FROM ${type} WHERE hash = ANY($1)`;
+            const existRes = await entityManager.query(existQuery, [hashes]);
+
+            // Create a Set of existing hashes for quick lookup
+            const existingHashes = new Set(existRes.map(row => row.hash));
+
+            // Filter out textHeaps that already exist
+            const newTextHeaps = group.filter(th => !existingHashes.has(th.hash));
+
+            if (newTextHeaps.length > 0) {
+                // Prepare batch insert query
+                const insertValues: any[] = [];
+                const insertPlaceholders: string[] = [];
+
+                newTextHeaps.forEach((th, index) => {
+                    insertValues.push(th.content, th.hash);
+                    insertPlaceholders.push(`($${2 * index + 1}, $${2 * index + 2})`);
+                });
+
+                const insertQuery = `INSERT INTO ${type} (content, hash) VALUES ${insertPlaceholders.join(', ')} ON CONFLICT DO NOTHING`;
+                await entityManager.query(insertQuery, insertValues);
             }
         }
     });
 };
 
-export const isHashExist = (
-	typeHeap: string,
-	hash: string
-): { query: string } => {
-	const query = `SELECT hash FROM ${typeHeap} WHERE hash = '${hash}'`;
-	return { query };
-};
+// Build Blind Index
+export const buildBlindIndex = async (
+	dt: DataSource,
+	entity: any
+): Promise<any> => {
+	const th: TextHeap[] = [];
+    const result: { [key: string]: any } = {};
 
-export const searchContents = (
-	table: string,
-	content: string
-): { query: string } => {
-	const query = `SELECT content, hash FROM ${table} WHERE content ILIKE '%' || '${content}' || '%';`;
-	return { query };
-};
+	for (const key in entity) {
+		if (entity.hasOwnProperty(key)) {
+			const fieldName = getMetadata(entity, key, 'db');
+			if (fieldName) {
+				let value = entity[key];
 
-export const buildLikeQuery = (column: string, baseQuery: string, terms: string[]): { query: string, args: any[] } => {
-	const likeClauses: string[] = [];
-	const args: any[] = [];
+				const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
+				if (txtHeapTable) {
+					const { str, heaps } = buildHeap(value, txtHeapTable);
+					th.push(...heaps);
 
-	terms.forEach(term => {
-		likeClauses.push(`${column} ILIKE $${args.length + 1}`);
-		args.push(`%${term}%`);
+					const bidxCol = getMetadata(entity, key, 'bidx_col');
+					if (bidxCol) {
+						const encryptedValue = encryptWithAes('AES_256_CBC', value);
+						value = encryptedValue;
+						result[bidxCol] = str;
+					}
+
+				}
+
+				result[fieldName] = value;
+			}
+		}
+	}
+
+	await saveToHeap(dt, th);
+
+	return result;
+}
+
+// SearchContents
+export const searchContents = async (
+	value: string
+): Promise<any> => {
+	const values = split(value);
+	const builder = new Set<string>();
+
+	values.forEach(val => {
+		const hash = commonGenerateDigest('SHA256', val);
+		const hash8LastChar = getLast8Characters(hash);
+		builder.add(hash8LastChar);
 	});
 
-	const fullQuery = `${baseQuery} WHERE ${likeClauses.join(' OR ')}`;
-	return { query: fullQuery, args };
-};
+	const result = Array.from(builder).join('')
+	return result
+}

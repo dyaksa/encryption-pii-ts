@@ -22,18 +22,18 @@ const main = async () => {
 
 	await dt.initialize();
 
-	const user = new CreateUserDto();
-    user.name = 'Khairul Rahadian';
-    user.email = 'khairul.rahadian@gmail.com';
-    user.address = 'Ujung Berung';
-    user.age = 25;
-    user.password = 'securepassword';
+	// const user = new CreateUserDto();
+    // user.name = 'Khairul Rahadian';
+    // user.email = 'khairul.rahadian@gmail.com';
+    // user.address = 'Ujung Berung';
+    // user.age = 25;
+    // user.password = 'securepassword';
 
-    const tableName = 'users';
+    // const tableName = 'users';
 
-	console.log(user);
-    const insertWithHeap = await CryptoTs.insertWithHeap(dt, tableName, user);
-	console.log('Insert With Heap:', insertWithHeap);
+	// console.log(user);
+    // const insertWithHeap = await CryptoTs.insertWithHeap(dt, tableName, user);
+	// console.log('Insert With Heap:', insertWithHeap);
 
 
 	// const updateUser = new UpdateUserDto();
@@ -45,6 +45,19 @@ const main = async () => {
 
     // const updateWithHeap = await CryptoTs.updateWithHeap(dt, tableName, updateUser, '4207c94f-4f08-4793-90fa-6b5ceacadf00');
     // console.log('Update With Heap:', updateWithHeap);
+
+	
+	const user = new CreateUserDto();
+    user.name = 'Dyaksa Rahadian';
+    user.email = 'dyaksa.rahadian@gmail.com';
+    user.address = 'Demak Berung';
+    user.age = 25;
+    user.password = 'securepassword';
+
+
+    const saveToHeap = await CryptoTs.buildBlindIndex(dt, user);
+	console.log('Insert With Heap :', saveToHeap);
+
 };
 
 main();

@@ -30,30 +30,30 @@ __decorate([
 ], User.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], User.prototype, "name_bidx", void 0);
+__decorate([
+    (0, typeorm_1.Column)('bytea'),
     index_1.default.DBColumn('email'),
     index_1.default.BidxCol('bidx_email'),
     index_1.default.TxtHeapTable('email_text_heap'),
+    __metadata("design:type", Buffer)
+], User.prototype, "email", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], User.prototype, "bidx_name", void 0);
+], User.prototype, "email_bidx", void 0);
 __decorate([
     (0, typeorm_1.Column)('bytea'),
     index_1.default.DBColumn('address'),
     index_1.default.BidxCol('bidx_address'),
     index_1.default.TxtHeapTable('address_text_heap'),
     __metadata("design:type", Buffer)
-], User.prototype, "email", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], User.prototype, "bidx_email", void 0);
-__decorate([
-    (0, typeorm_1.Column)('bytea'),
-    __metadata("design:type", Buffer)
 ], User.prototype, "address", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], User.prototype, "bidx_address", void 0);
+], User.prototype, "address_bidx", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: true, default: 25 }) // Define 'age' column as nullable
     ,
