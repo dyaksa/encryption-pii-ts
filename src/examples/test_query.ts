@@ -1,55 +1,63 @@
 
 // index.ts
+import { DataSource } from 'typeorm';
 import CryptoTs from '../index';
-import { Entity } from './entity';
+import { User } from './entity';
+import { CreateUserDto } from './createUser.dto';
+import { UpdateUserDto } from './updateUser.dto';
 
 // Example usage
-const main = () => {
-    const entity = new Entity();
-    entity.id = '123e4567-e89b-12d3-a456-426614174000';
-    entity.name = 'John Doe';
-    entity.createdAt = new Date().toISOString();
-    entity.age = 30;
-    entity.score = 85.5;
-    entity.isActive = true;
-    entity.content = 'Example content';
+const main = async () => {
+	// Initialize the DataSource
+	const dt = new DataSource({
+		type: 'postgres',
+		host: 'localhost',
+		port: 5432,
+		username: 'postgres',
+		password: 'mysecretpassword',
+		database: 'sandbox_nest',
+		synchronize: true,
+		entities: [User],
+	});
 
-    const crypto: any = {
-        hmacFunc: () => (value: string) => `hashed_${value}`
-    };
+	await dt.initialize();
 
-    const tableName = 'example_table';
+	// const user = new CreateUserDto();
+    // user.name = 'Khairul Rahadian';
+    // user.email = 'khairul.rahadian@gmail.com';
+    // user.address = 'Ujung Berung';
+    // user.age = 25;
+    // user.password = 'securepassword';
 
-    const { query: insertQuery, args: insertArgs } = CryptoTs.insertWithHeap(crypto, tableName, entity);
-    console.log('Insert Query:', insertQuery);
-    console.log('Insert Args:', insertArgs);
+    // const tableName = 'users';
 
-    const { query: updateQuery, args: updateArgs } = CryptoTs.updateWithHeap(crypto, tableName, entity, '123e4567-e89b-12d3-a456-426614174000');
-    console.log('Update Query:', updateQuery);
-    console.log('Update Args:', updateArgs);
+	// console.log(user);
+    // const insertWithHeap = await CryptoTs.insertWithHeap(dt, tableName, user);
+	// console.log('Insert With Heap:', insertWithHeap);
 
-    const textHeaps = [
-        { content: 'example content', type: 'example_heap', hash: 'hashed_example' }
-    ];
-    const { query: heapQuery, args: heapArgs } = CryptoTs.saveToHeap(textHeaps);
-    console.log('Heap Query:', heapQuery);
-    console.log('Heap Args:', heapArgs);
 
-    const terms = ['example', 'test'];
-    const { query: likeQuery, args: likeArgs } = CryptoTs.buildLikeQuery('column_name', 'SELECT * FROM example_table', terms);
-    console.log('Like Query:', likeQuery);
-    console.log('Like Args:', likeArgs);
+	// const updateUser = new UpdateUserDto();
+    // updateUser.name = 'Reka Alamsyah sadsadas paham'; // Update name to a new value
+    // updateUser.email = 'reka.alamsyah.updateasdasdsa@gmail.com'; // Update email to a new value
+    // updateUser.address = 'Cisereuh aseeemmm';
+    // updateUser.age = 30;
+    // updateUser.password = 'securepassword';
 
-    const { query: searchQuery, args: searchArgs } = CryptoTs.searchContents('example_heap', { content: 'example' });
-    console.log('Search Query:', searchQuery);
-    console.log('Search Args:', searchArgs);
+    // const updateWithHeap = await CryptoTs.updateWithHeap(dt, tableName, updateUser, '4207c94f-4f08-4793-90fa-6b5ceacadf00');
+    // console.log('Update With Heap:', updateWithHeap);
 
-    const { query: hashExistQuery, args: hashExistArgs } = CryptoTs.isHashExist('example_heap', { hash: 'hashed_example' });
-    console.log('Hash Exist Query:', hashExistQuery);
-    console.log('Hash Exist Args:', hashExistArgs);
+	
+	const user = new CreateUserDto();
+    user.name = 'Dyaksa Rahadian';
+    user.email = 'dyaksa.rahadian@gmail.com';
+    user.address = 'Demak Berung';
+    user.age = 25;
+    user.password = 'securepassword';
 
-    const conditions = CryptoTs.generateSQLConditions(entity);
-    console.log('SQL Conditions:', conditions.join(' AND '));
+
+    const saveToHeap = await CryptoTs.buildBlindIndex(dt, user);
+	console.log('Insert With Heap :', saveToHeap);
+
 };
 
 main();

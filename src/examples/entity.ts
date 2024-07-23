@@ -1,27 +1,45 @@
 // entity.ts
 import CryptoTs from '../index';
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-export class Entity {
+@Entity('users')
+export class User {
+    @PrimaryGeneratedColumn('uuid')
     @CryptoTs.DBColumn('id')
-    id: string;
+        id: string;
 
+    @Column('bytea')
     @CryptoTs.DBColumn('name')
-    name: string;
+    @CryptoTs.BidxCol('bidx_name')
+    @CryptoTs.TxtHeapTable('name_text_heap')
+        name: Buffer;
 
-    @CryptoTs.DBColumn('created_at')
-    createdAt: string;
+    @Column()
+        name_bidx: string;
 
+    @Column('bytea')	
+    @CryptoTs.DBColumn('email')
+    @CryptoTs.BidxCol('bidx_email')
+    @CryptoTs.TxtHeapTable('email_text_heap')    
+        email: Buffer;
+
+    @Column()
+        email_bidx: string;
+
+    @Column('bytea')
+	@CryptoTs.DBColumn('address')
+    @CryptoTs.BidxCol('bidx_address')
+    @CryptoTs.TxtHeapTable('address_text_heap')
+        address: Buffer;
+    
+    @Column()
+        address_bidx: string;
+
+    @Column({ type: 'int', nullable: true,  default: 25  }) // Define 'age' column as nullable
     @CryptoTs.DBColumn('age')
-    age: number;
-
-    @CryptoTs.DBColumn('score')
-    score: number;
-
-    @CryptoTs.DBColumn('is_active')
-    isActive: boolean;
-
-    @CryptoTs.DBColumn('content')
-    @CryptoTs.BidxCol('bidx_content')
-    @CryptoTs.TxtHeapTable('example_heap')
-    content: string;
+        age: number | null; // Adjust the type to accept null values
+    
+    @Column()
+    @CryptoTs.DBColumn('password')
+        password: string;
 }

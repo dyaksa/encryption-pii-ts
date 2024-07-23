@@ -1,24 +1,23 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildLikeQuery = exports.searchContents = exports.isHashExist = exports.saveToHeap = exports.buildHeap = exports.updateWithHeap = exports.insertWithHeap = exports.validateEmail = exports.split = exports.generateSQLConditions = void 0;
+exports.searchContents = exports.buildBlindIndex = exports.saveToHeap = exports.buildHeap = exports.validateEmail = exports.getLast8Characters = exports.split = void 0;
+const hmac_1 = require("./hmac");
 require("reflect-metadata");
+const dotenv = require("dotenv");
+const aes_encryption_1 = require("./aes_encryption");
+dotenv.config();
 const getMetadata = (entity, key, metaKey) => {
     return Reflect.getMetadata(metaKey, entity, key);
 };
-const generateSQLConditions = (data) => {
-    const conditions = [];
-    for (const key in data) {
-        if (data.hasOwnProperty(key)) {
-            const value = data[key];
-            const bidxCol = getMetadata(data, key, 'bidx_col');
-            if (bidxCol) {
-                conditions.push(`${bidxCol} ILIKE '%${value}%'`);
-            }
-        }
-    }
-    return conditions;
-};
-exports.generateSQLConditions = generateSQLConditions;
 const split = (value) => {
     let sep = ' ';
     const reg = '[a-zA-Z0-9]+';
@@ -30,119 +29,106 @@ const split = (value) => {
     return parts.flatMap(part => part.match(regex) || []);
 };
 exports.split = split;
+const getLast8Characters = (input) => {
+    if (input.length <= 8) {
+        return input;
+    }
+    return input.slice(-8);
+};
+exports.getLast8Characters = getLast8Characters;
 const validateEmail = (email) => {
     const emailRegexPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegexPattern.test(email);
 };
 exports.validateEmail = validateEmail;
-const insertWithHeap = (c, tableName, entity) => {
-    const fieldNames = [];
-    const args = [];
-    const placeholders = [];
-    const th = [];
-    for (const key in entity) {
-        if (entity.hasOwnProperty(key)) {
-            const fieldName = getMetadata(entity, key, 'db');
-            if (fieldName) {
-                fieldNames.push(fieldName);
-                const value = entity[key];
-                args.push(value);
-                const bidxCol = getMetadata(entity, key, 'bidx_col');
-                if (bidxCol) {
-                    fieldNames.push(bidxCol);
-                    placeholders.push(`$${placeholders.length + 1}`);
-                    const fieldValue = entity[key];
-                    if (fieldValue && fieldValue.to) {
-                        const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
-                        const { str, heaps } = (0, exports.buildHeap)(c, fieldValue.to(), txtHeapTable);
-                        th.push(...heaps);
-                        args.push(str);
-                    }
-                }
-                placeholders.push(`$${placeholders.length + 1}`);
-            }
-        }
-    }
-    const query = `INSERT INTO ${tableName} (${fieldNames.join(', ')}) VALUES (${placeholders.join(', ')}) RETURNING id`;
-    return { query, args };
-};
-exports.insertWithHeap = insertWithHeap;
-const updateWithHeap = (c, tableName, entity, id) => {
-    const fieldNames = [];
-    const placeholders = [];
-    const args = [];
-    const th = [];
-    for (const key in entity) {
-        if (entity.hasOwnProperty(key)) {
-            const fieldName = getMetadata(entity, key, 'db');
-            if (fieldName) {
-                fieldNames.push(fieldName);
-                const value = entity[key];
-                args.push(value);
-                const bidxCol = getMetadata(entity, key, 'bidx_col');
-                if (bidxCol) {
-                    fieldNames.push(bidxCol);
-                    placeholders.push(`$${placeholders.length + 1}`);
-                    const fieldValue = entity[key];
-                    if (fieldValue && fieldValue.to) {
-                        const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
-                        const { str, heaps } = (0, exports.buildHeap)(c, fieldValue.to(), txtHeapTable);
-                        th.push(...heaps);
-                        args.push(str);
-                    }
-                }
-                placeholders.push(`$${placeholders.length + 1}`);
-            }
-        }
-    }
-    let query = `UPDATE ${tableName} SET `;
-    for (let i = 0; i < fieldNames.length; i++) {
-        query += `${fieldNames[i]} = ${placeholders[i]}, `;
-    }
-    query = query.slice(0, -2); // Remove last comma and space
-    query += ` WHERE id = $${placeholders.length + 1}`;
-    return { query, args: [...args, id] };
-};
-exports.updateWithHeap = updateWithHeap;
-const buildHeap = (c, value, typeHeap) => {
+const buildHeap = (value, typeHeap) => {
     const values = (0, exports.split)(value);
     const builder = new Set();
     const heaps = [];
     values.forEach(val => {
-        const hash = c.hmacFunc()(val);
-        builder.add(hash);
-        heaps.push({ content: val.toLowerCase(), type: typeHeap, hash });
+        const hash = (0, hmac_1.commonGenerateDigest)('SHA256', val);
+        const hash8LastChar = (0, exports.getLast8Characters)(hash);
+        builder.add(hash8LastChar);
+        heaps.push({ content: val.toLowerCase(), type: typeHeap, hash: hash8LastChar });
     });
     return { str: Array.from(builder).join(''), heaps };
 };
 exports.buildHeap = buildHeap;
-const saveToHeap = (textHeaps) => {
-    const queries = [];
-    for (const th of textHeaps) {
-        const query = `INSERT INTO ${th.type} (content, hash) VALUES ($1, $2) ON CONFLICT DO NOTHING`;
-        queries.push({ query, args: [th.content, th.hash] });
-    }
-    return { query: queries.map(q => q.query).join('; '), args: queries.map(q => q.args) };
-};
+const saveToHeap = (dt, textHeaps) => __awaiter(void 0, void 0, void 0, function* () {
+    yield dt.transaction((entityManager) => __awaiter(void 0, void 0, void 0, function* () {
+        // Group textHeaps by their type
+        const textHeapsByType = textHeaps.reduce((acc, th) => {
+            if (!acc[th.type]) {
+                acc[th.type] = [];
+            }
+            acc[th.type].push(th);
+            return acc;
+        }, {});
+        // Iterate over each group and perform the operations
+        for (const type in textHeapsByType) {
+            const group = textHeapsByType[type];
+            // Extract all hashes from the current group
+            const hashes = group.map(th => th.hash);
+            // Check existence of all hashes in one query
+            const existQuery = `SELECT hash FROM ${type} WHERE hash = ANY($1)`;
+            const existRes = yield entityManager.query(existQuery, [hashes]);
+            // Create a Set of existing hashes for quick lookup
+            const existingHashes = new Set(existRes.map(row => row.hash));
+            // Filter out textHeaps that already exist
+            const newTextHeaps = group.filter(th => !existingHashes.has(th.hash));
+            if (newTextHeaps.length > 0) {
+                // Prepare batch insert query
+                const insertValues = [];
+                const insertPlaceholders = [];
+                newTextHeaps.forEach((th, index) => {
+                    insertValues.push(th.content, th.hash);
+                    insertPlaceholders.push(`($${2 * index + 1}, $${2 * index + 2})`);
+                });
+                const insertQuery = `INSERT INTO ${type} (content, hash) VALUES ${insertPlaceholders.join(', ')} ON CONFLICT DO NOTHING`;
+                yield entityManager.query(insertQuery, insertValues);
+            }
+        }
+    }));
+});
 exports.saveToHeap = saveToHeap;
-const isHashExist = (typeHeap, args) => {
-    const query = `SELECT hash FROM ${typeHeap} WHERE hash = $1`;
-    return { query, args: [args.hash] };
-};
-exports.isHashExist = isHashExist;
-const searchContents = (table, args) => {
-    const query = `SELECT content, hash FROM ${table} WHERE content ILIKE $1`;
-    return { query, args: [`%${args.content}%`] };
-};
-exports.searchContents = searchContents;
-const buildLikeQuery = (column, baseQuery, terms) => {
-    const likeClauses = [];
-    const args = [];
-    terms.forEach(term => {
-        likeClauses.push(`${column} ILIKE $${args.length + 1}`);
-        args.push(`%${term}%`);
+// Build Blind Index
+const buildBlindIndex = (dt, entity) => __awaiter(void 0, void 0, void 0, function* () {
+    const th = [];
+    const result = {};
+    for (const key in entity) {
+        if (entity.hasOwnProperty(key)) {
+            const fieldName = getMetadata(entity, key, 'db');
+            if (fieldName) {
+                let value = entity[key];
+                const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
+                if (txtHeapTable) {
+                    const { str, heaps } = (0, exports.buildHeap)(value, txtHeapTable);
+                    th.push(...heaps);
+                    const bidxCol = getMetadata(entity, key, 'bidx_col');
+                    if (bidxCol) {
+                        const encryptedValue = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', value);
+                        value = encryptedValue;
+                        result[bidxCol] = str;
+                    }
+                }
+                result[fieldName] = value;
+            }
+        }
+    }
+    yield (0, exports.saveToHeap)(dt, th);
+    return result;
+});
+exports.buildBlindIndex = buildBlindIndex;
+// SearchContents
+const searchContents = (value) => __awaiter(void 0, void 0, void 0, function* () {
+    const values = (0, exports.split)(value);
+    const builder = new Set();
+    values.forEach(val => {
+        const hash = (0, hmac_1.commonGenerateDigest)('SHA256', val);
+        const hash8LastChar = (0, exports.getLast8Characters)(hash);
+        builder.add(hash8LastChar);
     });
-    const fullQuery = `${baseQuery} WHERE ${likeClauses.join(' OR ')}`;
-    return { query: fullQuery, args };
-};
-exports.buildLikeQuery = buildLikeQuery;
+    const result = Array.from(builder).join('');
+    return result;
+});
+exports.searchContents = searchContents;

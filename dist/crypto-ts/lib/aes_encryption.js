@@ -47,7 +47,7 @@ const encrypt = (alg, key, data) => {
         encrypted += buffer_1.Buffer.from(cipher.getAuthTag().toString('hex'));
     }
     const resultBuffer = buffer_1.Buffer.concat([nonceBuf, buffer_1.Buffer.from(encrypted, 'hex')], nonceBuf.length + buffer_1.Buffer.from(encrypted, 'hex').length);
-    return resultBuffer;
+    return resultBuffer.toString('hex');
 };
 /**
  * Shim for difficult createCipheriv method
@@ -109,7 +109,8 @@ const decrypt = (alg, key, data) => {
     }
     let decrypted = decipher.update(encryptedBuf);
     let remaining = decipher.final();
-    return buffer_1.Buffer.concat([decrypted, remaining], decrypted.length + remaining.length);
+    const resultBuffer = buffer_1.Buffer.concat([decrypted, remaining], decrypted.length + remaining.length);
+    return resultBuffer.toString();
 };
 const encryptWithAes = (type, data) => {
     const key = process.env.CRYPTO_AES_KEY;

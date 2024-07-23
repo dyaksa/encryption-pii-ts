@@ -36,7 +36,7 @@ const getMetaFromAlgorithm = (alg: string): AlgorithmMeta => {
  * @param data {string | Buffer}
  * @return {{encrypted: string, nonce}}
  */
-const encrypt = (alg: string, key: string, data: string | Buffer) => {
+const encrypt = (alg: string, key: string, data: string | Buffer): string => {
   const metaAlg = getMetaFromAlgorithm(alg);
   if (key.length !== metaAlg.expectedKeyLen) {
     throw new Error(`invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
@@ -60,7 +60,7 @@ const encrypt = (alg: string, key: string, data: string | Buffer) => {
   }
 
 	const resultBuffer = Buffer.concat([nonceBuf, Buffer.from(encrypted, 'hex')], nonceBuf.length + Buffer.from(encrypted, 'hex').length);
-	return resultBuffer;
+	return resultBuffer.toString('hex');
 
 };
 
@@ -127,6 +127,7 @@ const decrypt = (alg: string, key: string, data: string | Buffer) => {
   const buf = Buffer.from(data.toString(), 'hex');
   const nonceBuf = buf.subarray(0, metaAlg.ivLen);
 
+
   const decipher = createDecipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
 
   let encryptedBuf;
@@ -142,7 +143,8 @@ const decrypt = (alg: string, key: string, data: string | Buffer) => {
 
   let decrypted = decipher.update(encryptedBuf);
   let remaining = decipher.final();
-  return Buffer.concat([decrypted, remaining], decrypted.length + remaining.length);
+  const resultBuffer = Buffer.concat([decrypted, remaining], decrypted.length + remaining.length);
+  return resultBuffer.toString();
 };
 
 export const encryptWithAes = (type: string, data: string | Buffer) => {
