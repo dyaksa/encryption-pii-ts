@@ -2,9 +2,8 @@
 // index.ts
 import { DataSource } from 'typeorm';
 import CryptoTs from '../index';
-import { User } from './entity';
-import { CreateUserDto } from './createUser.dto';
-import { UpdateUserDto } from './updateUser.dto';
+import { User } from './user_entity';
+import { encryptWithAes } from '../crypto-ts/lib/aes_encryption';
 
 // Example usage
 const main = async () => {
@@ -47,10 +46,10 @@ const main = async () => {
     // console.log('Update With Heap:', updateWithHeap);
 
 	
-	const user = new CreateUserDto();
-    user.name = 'Dyaksa Rahadian';
-    user.email = 'dyaksa.rahadian@gmail.com';
-    user.address = 'Demak Berung';
+	const user = new User();
+    user.name = encryptWithAes('AES_256_CBC','Dyaksa Rahadian');
+    user.email = encryptWithAes('AES_256_CBC','dyaksa.rahadian@gmail.com');
+    user.address = encryptWithAes('AES_256_CBC', 'Demak Berung');
     user.age = 25;
     user.password = 'securepassword';
 

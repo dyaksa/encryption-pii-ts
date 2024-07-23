@@ -96,43 +96,6 @@ export const saveToHeap = async (dt: DataSource, textHeaps: TextHeap[]): Promise
     });
 };
 
-// Build Blind Index
-export const buildBlindIndex = async (
-	dt: DataSource,
-	entity: any
-): Promise<any> => {
-	const th: TextHeap[] = [];
-    const result: { [key: string]: any } = {};
-
-	for (const key in entity) {
-		if (entity.hasOwnProperty(key)) {
-			const fieldName = getMetadata(entity, key, 'db');
-			if (fieldName) {
-				let value = entity[key];
-
-				const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
-				if (txtHeapTable) {
-					const { str, heaps } = buildHeap(value, txtHeapTable);
-					th.push(...heaps);
-
-					const bidxCol = getMetadata(entity, key, 'bidx_col');
-					if (bidxCol) {
-						const encryptedValue = encryptWithAes('AES_256_CBC', value);
-						value = encryptedValue;
-						result[bidxCol] = str;
-					}
-
-				}
-
-				result[fieldName] = value;
-			}
-		}
-	}
-
-	await saveToHeap(dt, th);
-
-	return result;
-};
 
 // SearchContents
 export const searchContents = async (
@@ -151,8 +114,8 @@ export const searchContents = async (
 	return result
 };
 
-// BindHeap
-export const bindHeap = async (
+// buildBlindIndex
+export const buildBlindIndex = async (
 	dt: DataSource,
 	entity: any
 ): Promise<any> => {
@@ -163,15 +126,25 @@ export const bindHeap = async (
 		if (entity.hasOwnProperty(key)) {
 			const fieldName = getMetadata(entity, key, 'db');
 			if (fieldName) {
+
 				if(entity[key] instanceof AesCipher) {
 					let value = entity[key].To.toString();
+					let encryptWithAesBuf = entity[key].Value;
+
+					// assign encrypt to fieldName
+					result[fieldName] = encryptWithAesBuf;
 
 					const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
 					if (txtHeapTable) {
 						const { str, heaps } = buildHeap(value, txtHeapTable);
 						th.push(...heaps);
+							
+						const bidxCol = getMetadata(entity, key, 'bidx_col');
+						if (bidxCol) {
+							// assign bidx_col with heap
+							result[bidxCol] = str;
+						}
 					}
-					result[fieldName] = value;
 				}
 			}
 		}

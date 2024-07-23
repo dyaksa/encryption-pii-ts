@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 // entity.ts
+const types_1 = require("../crypto-ts/lib/types");
 const index_1 = require("../index");
 const typeorm_1 = require("typeorm");
 let User = class User {
@@ -26,7 +27,7 @@ __decorate([
     index_1.default.DBColumn('name'),
     index_1.default.BidxCol('name_bidx'),
     index_1.default.TxtHeapTable('name_text_heap'),
-    __metadata("design:type", Buffer)
+    __metadata("design:type", types_1.AesCipher)
 ], User.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
@@ -37,7 +38,7 @@ __decorate([
     index_1.default.DBColumn('email'),
     index_1.default.BidxCol('email_bidx'),
     index_1.default.TxtHeapTable('email_text_heap'),
-    __metadata("design:type", Buffer)
+    __metadata("design:type", types_1.AesCipher)
 ], User.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
@@ -48,7 +49,7 @@ __decorate([
     index_1.default.DBColumn('address'),
     index_1.default.BidxCol('address_bidx'),
     index_1.default.TxtHeapTable('address_text_heap'),
-    __metadata("design:type", Buffer)
+    __metadata("design:type", types_1.AesCipher)
 ], User.prototype, "address", void 0);
 __decorate([
     (0, typeorm_1.Column)(),

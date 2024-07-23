@@ -18,3 +18,7 @@ export interface NullType<T> {
 export interface Crypto {
     hmacFunc: () => (data: string) => string;
 }
+export declare class AesCipher {
+    Value: string | Buffer;
+    To: string | Buffer;
+}

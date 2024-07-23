@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchContents = exports.buildBlindIndex = exports.saveToHeap = exports.buildHeap = exports.validateEmail = exports.getLast8Characters = exports.split = void 0;
+exports.buildBlindIndex = exports.searchContents = exports.saveToHeap = exports.buildHeap = exports.validateEmail = exports.getLast8Characters = exports.split = void 0;
 const hmac_1 = require("./hmac");
+const types_1 = require("./types");
 require("reflect-metadata");
 const dotenv = require("dotenv");
-const aes_encryption_1 = require("./aes_encryption");
 dotenv.config();
 const getMetadata = (entity, key, metaKey) => {
     return Reflect.getMetadata(metaKey, entity, key);
@@ -91,34 +91,6 @@ const saveToHeap = (dt, textHeaps) => __awaiter(void 0, void 0, void 0, function
     }));
 });
 exports.saveToHeap = saveToHeap;
-// Build Blind Index
-const buildBlindIndex = (dt, entity) => __awaiter(void 0, void 0, void 0, function* () {
-    const th = [];
-    const result = {};
-    for (const key in entity) {
-        if (entity.hasOwnProperty(key)) {
-            const fieldName = getMetadata(entity, key, 'db');
-            if (fieldName) {
-                let value = entity[key];
-                const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
-                if (txtHeapTable) {
-                    const { str, heaps } = (0, exports.buildHeap)(value, txtHeapTable);
-                    th.push(...heaps);
-                    const bidxCol = getMetadata(entity, key, 'bidx_col');
-                    if (bidxCol) {
-                        const encryptedValue = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', value);
-                        value = encryptedValue;
-                        result[bidxCol] = str;
-                    }
-                }
-                result[fieldName] = value;
-            }
-        }
-    }
-    yield (0, exports.saveToHeap)(dt, th);
-    return result;
-});
-exports.buildBlindIndex = buildBlindIndex;
 // SearchContents
 const searchContents = (value) => __awaiter(void 0, void 0, void 0, function* () {
     const values = (0, exports.split)(value);
@@ -132,3 +104,34 @@ const searchContents = (value) => __awaiter(void 0, void 0, void 0, function* ()
     return result;
 });
 exports.searchContents = searchContents;
+// buildBlindIndex
+const buildBlindIndex = (dt, entity) => __awaiter(void 0, void 0, void 0, function* () {
+    const th = [];
+    const result = {};
+    for (const key in entity) {
+        if (entity.hasOwnProperty(key)) {
+            const fieldName = getMetadata(entity, key, 'db');
+            if (fieldName) {
+                if (entity[key] instanceof types_1.AesCipher) {
+                    let value = entity[key].To.toString();
+                    let encryptWithAesBuf = entity[key].Value;
+                    // assign encrypt to fieldName
+                    result[fieldName] = encryptWithAesBuf;
+                    const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
+                    if (txtHeapTable) {
+                        const { str, heaps } = (0, exports.buildHeap)(value, txtHeapTable);
+                        th.push(...heaps);
+                        const bidxCol = getMetadata(entity, key, 'bidx_col');
+                        if (bidxCol) {
+                            // assign bidx_col with heap
+                            result[bidxCol] = str;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    yield (0, exports.saveToHeap)(dt, th);
+    return result;
+});
+exports.buildBlindIndex = buildBlindIndex;

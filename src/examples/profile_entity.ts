@@ -1,5 +1,5 @@
 // entity.ts
-import { AesCipher } from 'src/crypto-ts/lib/types';
+import { AesCipher } from '../crypto-ts/lib/types';
 import CryptoTs from '../index';
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
@@ -13,7 +13,7 @@ export class Profile {
     @CryptoTs.DBColumn('name')
     @CryptoTs.BidxCol('name_bidx')
     @CryptoTs.TxtHeapTable('name_text_heap')
-    name: AesCipher;
+    name: AesCipher
 
     @Column()
     name_bidx: string;
