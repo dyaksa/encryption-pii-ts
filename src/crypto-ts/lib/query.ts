@@ -1,5 +1,5 @@
 import { commonGenerateDigest } from './hmac';
-import { TextHeap } from './types';
+import { AesCipher, TextHeap } from './types';
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 import { encryptWithAes } from './aes_encryption';
@@ -132,7 +132,7 @@ export const buildBlindIndex = async (
 	await saveToHeap(dt, th);
 
 	return result;
-}
+};
 
 // SearchContents
 export const searchContents = async (
@@ -149,4 +149,35 @@ export const searchContents = async (
 
 	const result = Array.from(builder).join('')
 	return result
-}
+};
+
+// BindHeap
+export const bindHeap = async (
+	dt: DataSource,
+	entity: any
+): Promise<any> => {
+	const th: TextHeap[] = [];
+    const result: { [key: string]: any } = {};
+
+	for (const key in entity) {
+		if (entity.hasOwnProperty(key)) {
+			const fieldName = getMetadata(entity, key, 'db');
+			if (fieldName) {
+				if(entity[key] instanceof AesCipher) {
+					let value = entity[key].To.toString();
+
+					const txtHeapTable = getMetadata(entity, key, 'txt_heap_table');
+					if (txtHeapTable) {
+						const { str, heaps } = buildHeap(value, txtHeapTable);
+						th.push(...heaps);
+					}
+					result[fieldName] = value;
+				}
+			}
+		}
+	}
+
+	await saveToHeap(dt, th);
+
+	return result;
+};

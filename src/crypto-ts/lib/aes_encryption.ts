@@ -3,6 +3,7 @@ import { Buffer } from 'buffer';
 import algorithms from './alg';
 import keyUtil from './key_util';
 import * as dotenv from 'dotenv';
+import { AesCipher } from './types';
 
 const DEFAULT_AUTH_TAG_LENGTH = 16;
 const SUPPORTED_AUTH_TAG_MODES = ['gcm', 'ccm', 'ocb', 'chacha20-poly1305'];
@@ -59,8 +60,42 @@ const encrypt = (alg: string, key: string, data: string | Buffer): string => {
     encrypted += Buffer.from(cipher.getAuthTag().toString('hex'));
   }
 
-	const resultBuffer = Buffer.concat([nonceBuf, Buffer.from(encrypted, 'hex')], nonceBuf.length + Buffer.from(encrypted, 'hex').length);
-	return resultBuffer.toString('hex');
+  const resultBuffer = Buffer.concat([nonceBuf, Buffer.from(encrypted, 'hex')], nonceBuf.length + Buffer.from(encrypted, 'hex').length);
+  return resultBuffer.toString('hex');
+
+};
+
+/**
+ * @param alg {string}
+ * @param key {string}
+ * @param data {string | Buffer}
+ * @return {{encrypted: string, nonce}}
+ */
+const encryptBuf = (alg: string, key: string, data: string | Buffer): Buffer => {
+  const metaAlg = getMetaFromAlgorithm(alg);
+  if (key.length !== metaAlg.expectedKeyLen) {
+    throw new Error(`invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
+  }
+
+  const nonce = keyUtil.generateRandomIV(metaAlg.ivLen);
+  const nonceBuf = Buffer.from(nonce, 'hex');
+
+  const keyBuf = Buffer.from(key);
+
+  const cipherOptions = {
+    authTagLength: DEFAULT_AUTH_TAG_LENGTH,
+  };
+
+  const cipher = createCipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
+  let encrypted = cipher.update(data.toString(), 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  // https://nodejs.org/api/crypto.html#ciphergetauthtag
+  if (SUPPORTED_AUTH_TAG_MODES.includes(metaAlg.mode)) {
+    encrypted += Buffer.from(cipher.getAuthTag().toString('hex'));
+  }
+
+  const resultBuffer = Buffer.concat([nonceBuf, Buffer.from(encrypted, 'hex')], nonceBuf.length + Buffer.from(encrypted, 'hex').length);
+  return resultBuffer;
 
 };
 
@@ -148,65 +183,116 @@ const decrypt = (alg: string, key: string, data: string | Buffer) => {
 };
 
 export const encryptWithAes = (type: string, data: string | Buffer) => {
-	const key = process.env.CRYPTO_AES_KEY;
-	switch (type) {
-	  case 'AES_128_CBC':
-		return encrypt(algorithms.AES_128_CBC, key, data);
-	  case 'AES_192_CBC':
-		return encrypt(algorithms.AES_192_CBC, key, data);
-	  case 'AES_256_CBC':
-		return encrypt(algorithms.AES_256_CBC, key, data);
-	  case 'AES_128_GCM':
-		return encrypt(algorithms.AES_128_GCM, key, data);
-	  case 'AES_192_GCM':
-		return encrypt(algorithms.AES_192_GCM, key, data);
-	  case 'AES_256_GCM':
-		return encrypt(algorithms.AES_256_GCM, key, data);
-	  case 'AES_128_CCM':
-		return encrypt(algorithms.AES_128_CCM, key, data);
-	  case 'AES_192_CCM':
-		return encrypt(algorithms.AES_192_CCM, key, data);
-	  case 'AES_256_CCM':
-		return encrypt(algorithms.AES_256_CCM, key, data);
-	  case 'AES_128_OCB':
-		return encrypt(algorithms.AES_128_OCB, key, data);
-	  case 'AES_192_OCB':
-		return encrypt(algorithms.AES_192_OCB, key, data);
-	  case 'AES_256_OCB':
-		return encrypt(algorithms.AES_256_OCB, key, data);
-	  default:
-		throw new Error('Unsupported encryption type');
-	}
-  };
-  
-  export const decryptWithAes = (type: string, data: string | Buffer) => {
-	const key = process.env.CRYPTO_AES_KEY;
-	switch (type) {
-	  case 'AES_128_CBC':
-		return decrypt(algorithms.AES_128_CBC, key, data);
-	  case 'AES_192_CBC':
-		return decrypt(algorithms.AES_192_CBC, key, data);
-	  case 'AES_256_CBC':
-		return decrypt(algorithms.AES_256_CBC, key, data);
-	  case 'AES_128_GCM':
-		return decrypt(algorithms.AES_128_GCM, key, data);
-	  case 'AES_192_GCM':
-		return decrypt(algorithms.AES_192_GCM, key, data);
-	  case 'AES_256_GCM':
-		return decrypt(algorithms.AES_256_GCM, key, data);
-	  case 'AES_128_CCM':
-		return decrypt(algorithms.AES_128_CCM, key, data);
-	  case 'AES_192_CCM':
-		return decrypt(algorithms.AES_192_CCM, key, data);
-	  case 'AES_256_CCM':
-		return decrypt(algorithms.AES_256_CCM, key, data);
-	  case 'AES_128_OCB':
-		return decrypt(algorithms.AES_128_OCB, key, data);
-	  case 'AES_192_OCB':
-		return decrypt(algorithms.AES_192_OCB, key, data);
-	  case 'AES_256_OCB':
-		return decrypt(algorithms.AES_256_OCB, key, data);
-	  default:
-		throw new Error('Unsupported decryption type');
-	}
-  };
+  const key = process.env.CRYPTO_AES_KEY;
+  switch (type) {
+    case 'AES_128_CBC':
+      return encrypt(algorithms.AES_128_CBC, key, data);
+    case 'AES_192_CBC':
+      return encrypt(algorithms.AES_192_CBC, key, data);
+    case 'AES_256_CBC':
+      return encrypt(algorithms.AES_256_CBC, key, data);
+    case 'AES_128_GCM':
+      return encrypt(algorithms.AES_128_GCM, key, data);
+    case 'AES_192_GCM':
+      return encrypt(algorithms.AES_192_GCM, key, data);
+    case 'AES_256_GCM':
+      return encrypt(algorithms.AES_256_GCM, key, data);
+    case 'AES_128_CCM':
+      return encrypt(algorithms.AES_128_CCM, key, data);
+    case 'AES_192_CCM':
+      return encrypt(algorithms.AES_192_CCM, key, data);
+    case 'AES_256_CCM':
+      return encrypt(algorithms.AES_256_CCM, key, data);
+    case 'AES_128_OCB':
+      return encrypt(algorithms.AES_128_OCB, key, data);
+    case 'AES_192_OCB':
+      return encrypt(algorithms.AES_192_OCB, key, data);
+    case 'AES_256_OCB':
+      return encrypt(algorithms.AES_256_OCB, key, data);
+    default:
+      throw new Error('Unsupported encryption type');
+  }
+};
+
+export const decryptWithAes = (type: string, data: string | Buffer) => {
+  const key = process.env.CRYPTO_AES_KEY;
+  switch (type) {
+    case 'AES_128_CBC':
+      return decrypt(algorithms.AES_128_CBC, key, data);
+    case 'AES_192_CBC':
+      return decrypt(algorithms.AES_192_CBC, key, data);
+    case 'AES_256_CBC':
+      return decrypt(algorithms.AES_256_CBC, key, data);
+    case 'AES_128_GCM':
+      return decrypt(algorithms.AES_128_GCM, key, data);
+    case 'AES_192_GCM':
+      return decrypt(algorithms.AES_192_GCM, key, data);
+    case 'AES_256_GCM':
+      return decrypt(algorithms.AES_256_GCM, key, data);
+    case 'AES_128_CCM':
+      return decrypt(algorithms.AES_128_CCM, key, data);
+    case 'AES_192_CCM':
+      return decrypt(algorithms.AES_192_CCM, key, data);
+    case 'AES_256_CCM':
+      return decrypt(algorithms.AES_256_CCM, key, data);
+    case 'AES_128_OCB':
+      return decrypt(algorithms.AES_128_OCB, key, data);
+    case 'AES_192_OCB':
+      return decrypt(algorithms.AES_192_OCB, key, data);
+    case 'AES_256_OCB':
+      return decrypt(algorithms.AES_256_OCB, key, data);
+    default:
+      throw new Error('Unsupported decryption type');
+  }
+};
+
+export const encryptWithAesBuf = (type: string, data: string | Buffer) : AesCipher => {
+  const key = process.env.CRYPTO_AES_KEY;
+  var encryptedValue = new Buffer(null);
+  switch (type) {
+    case 'AES_128_CBC':
+      encryptedValue = encryptBuf(algorithms.AES_128_CBC, key, data);
+      break;
+    case 'AES_192_CBC':
+      encryptedValue = encryptBuf(algorithms.AES_192_CBC, key, data);
+      break;
+    case 'AES_256_CBC':
+      encryptedValue = encryptBuf(algorithms.AES_256_CBC, key, data);
+      break;
+    case 'AES_128_GCM':
+      encryptedValue = encryptBuf(algorithms.AES_128_GCM, key, data);
+      break;
+    case 'AES_192_GCM':
+      encryptedValue = encryptBuf(algorithms.AES_192_GCM, key, data);
+      break;
+    case 'AES_256_GCM':
+      encryptedValue = encryptBuf(algorithms.AES_256_GCM, key, data);
+      break;
+    case 'AES_128_CCM':
+      encryptedValue = encryptBuf(algorithms.AES_128_CCM, key, data);
+      break;
+    case 'AES_192_CCM':
+      encryptedValue = encryptBuf(algorithms.AES_192_CCM, key, data);
+      break;
+    case 'AES_256_CCM':
+      encryptedValue = encryptBuf(algorithms.AES_256_CCM, key, data);
+      break;
+    case 'AES_128_OCB':
+      encryptedValue = encryptBuf(algorithms.AES_128_OCB, key, data);
+      break;
+    case 'AES_192_OCB':
+      encryptedValue = encryptBuf(algorithms.AES_192_OCB, key, data);
+      break;
+    case 'AES_256_OCB':
+      encryptedValue = encryptBuf(algorithms.AES_256_OCB, key, data);
+      break;
+    default:
+      throw new Error('Unsupported encryption type');
+  }
+
+  var cipher = new AesCipher()
+  cipher.Value = encryptedValue.toString('hex');
+  cipher.To = data.toString();
+
+  return cipher;
+};
