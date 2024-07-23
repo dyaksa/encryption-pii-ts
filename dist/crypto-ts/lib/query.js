@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getHeapsByContent = exports.buildBlindIndex = exports.saveToHeap = exports.buildHeap = exports.validateEmail = exports.getLast8Characters = exports.split = void 0;
+exports.searchContents = exports.buildBlindIndex = exports.saveToHeap = exports.buildHeap = exports.validateEmail = exports.getLast8Characters = exports.split = void 0;
 const hmac_1 = require("./hmac");
 require("reflect-metadata");
 const dotenv = require("dotenv");
@@ -119,8 +119,8 @@ const buildBlindIndex = (dt, entity) => __awaiter(void 0, void 0, void 0, functi
     return result;
 });
 exports.buildBlindIndex = buildBlindIndex;
-// GetHeapsByContent
-const getHeapsByContent = (value) => __awaiter(void 0, void 0, void 0, function* () {
+// SearchContents
+const searchContents = (value) => __awaiter(void 0, void 0, void 0, function* () {
     const values = (0, exports.split)(value);
     const builder = new Set();
     values.forEach(val => {
@@ -131,4 +131,4 @@ const getHeapsByContent = (value) => __awaiter(void 0, void 0, void 0, function*
     const result = Array.from(builder).join('');
     return result;
 });
-exports.getHeapsByContent = getHeapsByContent;
+exports.searchContents = searchContents;

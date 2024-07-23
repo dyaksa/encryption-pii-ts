@@ -6,6 +6,6 @@ declare const CryptoTs: {
     BidxCol: typeof BidxCol;
     TxtHeapTable: typeof TxtHeapTable;
     buildBlindIndex: (dt: import("typeorm").DataSource, entity: any) => Promise<any>;
-    getHeapsByContent: (value: string) => Promise<any>;
+    searchContents: (value: string) => Promise<any>;
 };
 export default CryptoTs;

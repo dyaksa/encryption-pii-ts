@@ -13,8 +13,8 @@ const index_1 = require("../index");
 function exampleGetHeapsByContent() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const inputValue = "Dyaksa Rahadian";
-            const result = yield index_1.default.getHeapsByContent(inputValue);
+            const inputValue = "Ali Farhan";
+            const result = yield index_1.default.searchContents(inputValue);
             console.log('Result:', result);
         }
         catch (error) {
@@ -22,5 +22,4 @@ function exampleGetHeapsByContent() {
         }
     });
 }
-// Call the example function
 exampleGetHeapsByContent();

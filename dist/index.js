@@ -10,6 +10,6 @@ const CryptoTs = {
     BidxCol: decorator_1.BidxCol,
     TxtHeapTable: decorator_1.TxtHeapTable,
     buildBlindIndex: query_1.buildBlindIndex,
-    getHeapsByContent: query_1.getHeapsByContent,
+    searchContents: query_1.searchContents,
 };
 exports.default = CryptoTs;
