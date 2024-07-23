@@ -1,5 +1,6 @@
 // entity.ts
 import CryptoTs from '../index';
+import { v4 as uuidv4 } from 'uuid';
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
@@ -10,27 +11,27 @@ export class User {
 
     @Column('bytea')
     @CryptoTs.DBColumn('name')
-    @CryptoTs.BidxCol('bidx_name')
+    @CryptoTs.BidxCol('name_bidx')
     @CryptoTs.TxtHeapTable('name_text_heap')
-        name: Buffer;
+        name: string | Buffer;
 
     @Column()
         name_bidx: string;
 
     @Column('bytea')	
     @CryptoTs.DBColumn('email')
-    @CryptoTs.BidxCol('bidx_email')
+    @CryptoTs.BidxCol('email_bidx')
     @CryptoTs.TxtHeapTable('email_text_heap')    
-        email: Buffer;
+        email: string | Buffer;
 
     @Column()
         email_bidx: string;
 
     @Column('bytea')
 	@CryptoTs.DBColumn('address')
-    @CryptoTs.BidxCol('bidx_address')
+    @CryptoTs.BidxCol('address_bidx')
     @CryptoTs.TxtHeapTable('address_text_heap')
-        address: Buffer;
+        address: string | Buffer;
     
     @Column()
         address_bidx: string;
@@ -42,4 +43,8 @@ export class User {
     @Column()
     @CryptoTs.DBColumn('password')
         password: string;
+
+	constructor() {
+		this.id = uuidv4();
+	}
 }

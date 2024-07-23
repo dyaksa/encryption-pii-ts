@@ -26,13 +26,13 @@ __decorate([
     index_1.default.DBColumn('name'),
     index_1.default.BidxCol('bidx_name'),
     index_1.default.TxtHeapTable('name_text_heap'),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], CreateUserDto.prototype, "name", void 0);
 __decorate([
     index_1.default.DBColumn('email'),
     index_1.default.BidxCol('bidx_email'),
     index_1.default.TxtHeapTable('email_text_heap'),
-    __metadata("design:type", String)
+    __metadata("design:type", Object)
 ], CreateUserDto.prototype, "email", void 0);
 __decorate([
     index_1.default.DBColumn('address'),

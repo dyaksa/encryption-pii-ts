@@ -1,11 +1,12 @@
 export declare class User {
     id: string;
-    name: Buffer;
+    name: string | Buffer;
     name_bidx: string;
-    email: Buffer;
+    email: string | Buffer;
     email_bidx: string;
-    address: Buffer;
+    address: string | Buffer;
     address_bidx: string;
     age: number | null;
     password: string;
+    constructor();
 }

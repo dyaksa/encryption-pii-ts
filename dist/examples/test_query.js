@@ -13,7 +13,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const index_1 = require("../index");
 const entity_1 = require("./entity");
-const createUser_dto_1 = require("./createUser.dto");
 // Example usage
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     // Initialize the DataSource
@@ -28,25 +27,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         entities: [entity_1.User],
     });
     yield dt.initialize();
-    // const user = new CreateUserDto();
-    // user.name = 'Khairul Rahadian';
-    // user.email = 'khairul.rahadian@gmail.com';
-    // user.address = 'Ujung Berung';
-    // user.age = 25;
-    // user.password = 'securepassword';
-    // const tableName = 'users';
-    // console.log(user);
-    // const insertWithHeap = await CryptoTs.insertWithHeap(dt, tableName, user);
-    // console.log('Insert With Heap:', insertWithHeap);
-    // const updateUser = new UpdateUserDto();
-    // updateUser.name = 'Reka Alamsyah sadsadas paham'; // Update name to a new value
-    // updateUser.email = 'reka.alamsyah.updateasdasdsa@gmail.com'; // Update email to a new value
-    // updateUser.address = 'Cisereuh aseeemmm';
-    // updateUser.age = 30;
-    // updateUser.password = 'securepassword';
-    // const updateWithHeap = await CryptoTs.updateWithHeap(dt, tableName, updateUser, '4207c94f-4f08-4793-90fa-6b5ceacadf00');
-    // console.log('Update With Heap:', updateWithHeap);
-    const user = new createUser_dto_1.CreateUserDto();
+    const user = new entity_1.User();
     user.name = 'Dyaksa Rahadian';
     user.email = 'dyaksa.rahadian@gmail.com';
     user.address = 'Demak Berung';
