@@ -1,11 +1,10 @@
-import { AesCipher } from '../crypto-ts/lib/types';
 export declare class User {
     id: string;
-    name: AesCipher;
+    name: Buffer;
     name_bidx: string;
-    email: AesCipher;
+    email: Buffer;
     email_bidx: string;
-    address: AesCipher;
+    address: Buffer;
     address_bidx: string;
     age: number | null;
     password: string;

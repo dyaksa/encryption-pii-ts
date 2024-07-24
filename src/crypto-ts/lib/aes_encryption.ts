@@ -95,7 +95,7 @@ const decrypt = (alg: string, key: string, data: string | Buffer): string => {
 	};
   
 	// Convert data to a buffer
-	const buf = Buffer.from(data.toString(), 'hex');
+	const buf = Buffer.from(data.toString('hex'), 'hex');
 	const nonceBuf = buf.subarray(0, metaAlg.ivLen);
   
 	// Create decipher instance
@@ -203,7 +203,7 @@ const encrypt = (alg: string, key: string, data: string | Buffer): Buffer => {
 
 };
 
-export const encryptWithAes = (type: string, data: string | Buffer) : AesCipher => {
+export const encryptWithAes = (type: string, data: string | Buffer) : any => {
   const key = process.env.CRYPTO_AES_KEY;
   let encryptedValue: Buffer = null;
   switch (type) {
@@ -248,7 +248,7 @@ export const encryptWithAes = (type: string, data: string | Buffer) : AesCipher 
   }
 
   let cipher = new AesCipher()
-  cipher.Value = encryptedValue.toString('hex');
+  cipher.Value = encryptedValue;
   cipher.To = data.toString();
 
   return cipher;

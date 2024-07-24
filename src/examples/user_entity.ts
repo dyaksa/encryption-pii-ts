@@ -13,7 +13,7 @@ export class User {
     @CryptoTs.DBColumn('name')
     @CryptoTs.BidxCol('name_bidx')
     @CryptoTs.TxtHeapTable('name_text_heap')
-    name: AesCipher;
+    name: Buffer;
 
     @Column()
     name_bidx: string;
@@ -22,7 +22,7 @@ export class User {
     @CryptoTs.DBColumn('email')
     @CryptoTs.BidxCol('email_bidx')
     @CryptoTs.TxtHeapTable('email_text_heap')
-    email: AesCipher;
+    email: Buffer;
 
     @Column()
     email_bidx: string;
@@ -31,7 +31,7 @@ export class User {
     @CryptoTs.DBColumn('address')
     @CryptoTs.BidxCol('address_bidx')
     @CryptoTs.TxtHeapTable('address_text_heap')
-    address: AesCipher;
+    address: Buffer;
 
     @Column()
     address_bidx: string;

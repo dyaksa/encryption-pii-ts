@@ -2,7 +2,7 @@ import CryptoTs from '../index';
 
 async function exampleGetHeapsByContent() {
     try {
-        const inputValue = "Ali Farhan";
+        const inputValue = "Hardian Hermansyah";
         const result = await CryptoTs.searchContents(inputValue);
         console.log('Result:', result);
     } catch (error) {
