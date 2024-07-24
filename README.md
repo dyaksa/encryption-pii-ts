@@ -1,73 +1,104 @@
-AGENT PII (TypeScript)
+# AGENT PII (TypeScript)
 
-### API Client
-- [x] encryptWithAes
-- [x] decryptWithAes
-- [x] commonGenerateDigest
-- [x] insertWithHeap
-- [x] updateWithHeap
-- [x] saveToHeap
-- [x] buildHeap
-- [x] generateSQLConditions
-- [x] buildLikeQuery
-- [x] searchContent
-- [x] isHashExist
-- [x] DBColumn
-- [x] BidxCol
-- [x] TxtHeapTable
+## API Client
+- [x] `encryptWithAes`
+- [x] `decryptWithAes`
+- [x] `DBColumn`
+- [x] `BidxCol`
+- [x] `TxtHeapTable`
+- [x] `buildBlindIndex`
+- [x] `searchContents`
 
+## Installation
 
-### Installation
+1. Run `npm` or `yarn` to install:
+    ```
+    npm i pii-agent-ts
+    ```
 
-1. Clone the repo
-2. Run npm/yarn install
-```bash
-cd pii-agent-ts
-npm install
+2. Set the keys in your `.env` file:
+    ```
+    CRYPTO_AES_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    CRYPTO_HMAC_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    ```
+
+## Usage Examples
+
+### Test Encrypt and Decrypt
+
+```typescript
+import CryptoTs from "../index";
+
+const data = "Dyaksa";
+
+// Encrypt
+const encryptedHex = CryptoTs.encryptWithAes("AES_256_CBC", data);
+console.log('Encrypted Data (Hex):', encryptedHex);
+
+// // Decrypt
+const decryptedData =  CryptoTs.decryptWithAes("AES_256_CBC", encryptedHex.Value);
+console.log('Encrypted Data:', decryptedData);
 ```
 
-3. copy .env.example to .env
+### Test Get Heaps by Content
 
-```sh
-cp .env.example .env
+```typescript
+import CryptoTs from '../index';
+
+async function exampleGetHeapsByContent() {
+    try {
+        const inputValue = "Ali Farhan";
+        const result = await CryptoTs.searchContents(inputValue);
+        console.log('Result:', result);
+    } catch (error) {
+        console.error('Error fetching heaps by content:', error);
+    }
+}
+
+exampleGetHeapsByContent();
 ```
 
-4. Fill in the value
-```sh
-CRYPTO_AES_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-CRYPTO_HMAC_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+### Test Query
+
+```typescript
+// index.ts
+
+// index.ts
+import { DataSource } from 'typeorm';
+import CryptoTs from '../index';
+import { User } from './user_entity';
+import { encryptWithAes } from '../crypto-ts/lib/aes_encryption';
+
+// Example usage
+const main = async () => {
+	// Initialize the DataSource
+	const dt = new DataSource({
+		type: 'postgres',
+		host: 'localhost',
+		port: 5432,
+		username: 'postgres',
+		password: 'mysecretpassword',
+		database: 'sandbox_nest',
+		synchronize: true,
+		entities: [User],
+	});
+
+	await dt.initialize();
+
+	const user = new User();
+    user.name = encryptWithAes('AES_256_CBC','Dyaksa Rahadian');
+    user.email = encryptWithAes('AES_256_CBC','dyaksa.rahadian@gmail.com');
+    user.address = encryptWithAes('AES_256_CBC', 'Demak Berung');
+    user.age = 25;
+    user.password = 'securepassword';
+
+    const saveToHeap = await CryptoTs.buildBlindIndex(dt, user);
+	console.log('Insert With Heap :', saveToHeap);
+
+};
+
+main();
 ```
-
-
-### Run Examples
-1. Build package
-```bash
-npm run build
-```
-
-2. Run Example `src/examples/**.ts88`
-```bash
-ts-node src/examples/test_encrypt.ts
-ts-node src/examples/test_decrypt.ts
-ts-node src/examples/test_query.ts
-```
-
-### TODO
-- [x] encryptWithAes
-- [x] decryptWithAes
-- [x] commonGenerateDigest
-- [x] insertWithHeap
-- [x] updateWithHeap
-- [x] saveToHeap
-- [x] buildHeap
-- [x] generateSQLConditions
-- [x] buildLikeQuery
-- [x] searchContent
-- [x] isHashExist
-- [x] DBColumn
-- [x] BidxCol
-- [x] TxtHeapTable
-- [ ] ....
 
 ## Change Log
 

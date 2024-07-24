@@ -9,5 +9,5 @@ export declare const buildHeap: (value: string, typeHeap: string) => {
     heaps: TextHeap[];
 };
 export declare const saveToHeap: (dt: DataSource, textHeaps: TextHeap[]) => Promise<void>;
-export declare const buildBlindIndex: (dt: DataSource, entity: any) => Promise<any>;
 export declare const searchContents: (value: string) => Promise<any>;
+export declare const buildBlindIndex: (dt: DataSource, entity: any) => Promise<any>;
