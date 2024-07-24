@@ -70,7 +70,7 @@ const decrypt = (alg, key, data) => {
         authTagLength: DEFAULT_AUTH_TAG_LENGTH,
     };
     // Convert data to a buffer
-    const buf = buffer_1.Buffer.from(data.toString(), 'hex');
+    const buf = buffer_1.Buffer.from(data.toString('hex'), 'hex');
     const nonceBuf = buf.subarray(0, metaAlg.ivLen);
     // Create decipher instance
     const decipher = createDecipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
@@ -207,7 +207,7 @@ const encryptWithAes = (type, data) => {
             throw new Error('Unsupported encryption type');
     }
     let cipher = new types_1.AesCipher();
-    cipher.Value = encryptedValue.toString('hex');
+    cipher.Value = encryptedValue;
     cipher.To = data.toString();
     return cipher;
 };

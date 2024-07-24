@@ -4,7 +4,7 @@ declare const CryptoTs: {
     DBColumn: typeof DBColumn;
     BidxCol: typeof BidxCol;
     TxtHeapTable: typeof TxtHeapTable;
-    encryptWithAes: (type: string, data: string | Buffer) => AesCipher;
+    encryptWithAes: (type: string, data: string | Buffer) => any;
     decryptWithAes: (type: string, data: string | Buffer) => string;
     buildBlindIndex: (dt: import("typeorm").DataSource, entity: any) => Promise<any>;
     searchContents: (value: string) => Promise<any>;
