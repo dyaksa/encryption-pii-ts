@@ -1,3 +1,7 @@
+Tentu! Berikut adalah versi yang telah dikoreksi dari teks Anda:
+
+---
+
 # AGENT PII (TypeScript)
 
 ## API Client
@@ -37,7 +41,7 @@ console.log('Encrypted Data (Hex):', encryptedHex);
 
 // Decrypt
 const decryptedData =  CryptoTs.decryptWithAes("AES_256_CBC", encryptedHex.Value);
-console.log('Encrypted Data:', decryptedData);
+console.log('Decrypted Data:', decryptedData);
 
 ```
 
@@ -59,13 +63,29 @@ async function exampleGetHeapsByContent() {
 exampleGetHeapsByContent();
 ```
 
-### Create table text heap in your db
+### Create Table Text Heap in Your DB
+
 ```sql
-CREATE TABLE "name_text_heap" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "content" character varying NOT NULL, "hash" character varying NOT NULL, CONSTRAINT "PK_71ee3e36c8f22eed301f56ada02" PRIMARY KEY ("id"))
+CREATE TABLE "name_text_heap" (
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(), 
+    "content" character varying NOT NULL, 
+    "hash" character varying NOT NULL, 
+    CONSTRAINT "PK_71ee3e36c8f22eed301f56ada02" PRIMARY KEY ("id")
+);
 
-CREATE TABLE "email_text_heap" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "content" character varying NOT NULL, "hash" character varying NOT NULL, CONSTRAINT "PK_403649abdb24b9c7598045628ca" PRIMARY KEY ("id"))
+CREATE TABLE "email_text_heap" (
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(), 
+    "content" character varying NOT NULL, 
+    "hash" character varying NOT NULL, 
+    CONSTRAINT "PK_403649abdb24b9c7598045628ca" PRIMARY KEY ("id")
+);
 
-CREATE TABLE "address_text_heap" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "content" character varying NOT NULL, "hash" character varying NOT NULL, CONSTRAINT "PK_228f0436c1bed1112c77a6fcabd" PRIMARY KEY ("id"))
+CREATE TABLE "address_text_heap" (
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(), 
+    "content" character varying NOT NULL, 
+    "hash" character varying NOT NULL, 
+    CONSTRAINT "PK_228f0436c1bed1112c77a6fcabd" PRIMARY KEY ("id")
+);
 ```
 
 ### Define Column Encrypt
@@ -166,7 +186,7 @@ See [Changelog](CHANGELOG.md) for more information.
 
 ## Contributing
 
-Contributions welcome! See [Contributing](CONTRIBUTING.md).
+Contributions are welcome! See [Contributing](CONTRIBUTING.md).
 
 ## Author
 
@@ -176,3 +196,5 @@ Contributions welcome! See [Contributing](CONTRIBUTING.md).
 ## License
 
 Licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
