@@ -23,33 +23,6 @@ const getMetaFromAlgorithm = (alg) => {
     return { expectedKeyLen: keyLenInt / 8, mode: algSplited[2], ivLen };
 };
 /**
- * @param alg {string}
- * @param key {string}
- * @param data {string | Buffer}
- * @return {{encrypted: string, nonce}}
- */
-const encrypt = (alg, key, data) => {
-    const metaAlg = getMetaFromAlgorithm(alg);
-    if (key.length !== metaAlg.expectedKeyLen) {
-        throw new Error(`invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
-    }
-    const nonce = key_util_1.default.generateRandomIV(metaAlg.ivLen);
-    const nonceBuf = buffer_1.Buffer.from(nonce, 'hex');
-    const keyBuf = buffer_1.Buffer.from(key);
-    const cipherOptions = {
-        authTagLength: DEFAULT_AUTH_TAG_LENGTH,
-    };
-    const cipher = createCipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
-    let encrypted = cipher.update(data.toString(), 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    // https://nodejs.org/api/crypto.html#ciphergetauthtag
-    if (SUPPORTED_AUTH_TAG_MODES.includes(metaAlg.mode)) {
-        encrypted += buffer_1.Buffer.from(cipher.getAuthTag().toString('hex'));
-    }
-    const resultBuffer = buffer_1.Buffer.concat([nonceBuf, buffer_1.Buffer.from(encrypted, 'hex')], nonceBuf.length + buffer_1.Buffer.from(encrypted, 'hex').length);
-    return resultBuffer.toString('hex');
-};
-/**
  * Shim for difficult createCipheriv method
  *
  * @param algorithm
@@ -79,6 +52,33 @@ const createDecipherivShim = (algorithm, key, iv, options) => {
  * @param alg {string}
  * @param key {string}
  * @param data {string | Buffer}
+ * @return {{encrypted: string, nonce}}
+ */
+const encrypt = (alg, key, data) => {
+    const metaAlg = getMetaFromAlgorithm(alg);
+    if (key.length !== metaAlg.expectedKeyLen) {
+        throw new Error(`invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
+    }
+    const nonce = key_util_1.default.generateRandomIV(metaAlg.ivLen);
+    const nonceBuf = buffer_1.Buffer.from(nonce, 'hex');
+    const keyBuf = buffer_1.Buffer.from(key);
+    const cipherOptions = {
+        authTagLength: DEFAULT_AUTH_TAG_LENGTH,
+    };
+    const cipher = createCipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
+    let encrypted = cipher.update(data.toString(), 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    // https://nodejs.org/api/crypto.html#ciphergetauthtag
+    if (SUPPORTED_AUTH_TAG_MODES.includes(metaAlg.mode)) {
+        encrypted += buffer_1.Buffer.from(cipher.getAuthTag().toString('hex'));
+    }
+    const resultBuffer = buffer_1.Buffer.concat([nonceBuf, buffer_1.Buffer.from(encrypted, 'hex')], nonceBuf.length + buffer_1.Buffer.from(encrypted, 'hex').length);
+    return resultBuffer;
+};
+/**
+ * @param alg {string}
+ * @param key {string}
+ * @param data {string | Buffer}
  * @return {Buffer}
  */
 const decrypt = (alg, key, data) => {
@@ -93,7 +93,7 @@ const decrypt = (alg, key, data) => {
     const cipherOptions = {
         authTagLength: DEFAULT_AUTH_TAG_LENGTH,
     };
-    const buf = buffer_1.Buffer.from(data.toString(), 'hex');
+    const buf = buffer_1.Buffer.from(data.toString('hex'), 'hex');
     const nonceBuf = buf.subarray(0, metaAlg.ivLen);
     const decipher = createDecipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
     let encryptedBuf;

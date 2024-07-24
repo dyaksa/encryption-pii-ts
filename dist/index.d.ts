@@ -1,6 +1,6 @@
 import { BidxCol, DBColumn, TxtHeapTable } from "./crypto-ts/lib/decorator";
 declare const CryptoTs: {
-    encryptWithAes: (type: string, data: string | Buffer) => string;
+    encryptWithAes: (type: string, data: string | Buffer) => Buffer;
     decryptWithAes: (type: string, data: string | Buffer) => string;
     DBColumn: typeof DBColumn;
     BidxCol: typeof BidxCol;

@@ -3,8 +3,6 @@
 import { DataSource, Entity } from 'typeorm';
 import CryptoTs from '../index';
 import { User } from './entity';
-import { CreateUserDto } from './createUser.dto';
-import { UpdateUserDto } from './updateUser.dto';
 
 // Example usage
 const main = async () => {
