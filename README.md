@@ -1,7 +1,3 @@
-Tentu! Berikut adalah versi yang telah dikoreksi dari teks Anda:
-
----
-
 # AGENT PII (TypeScript)
 
 ## API Client
