@@ -35,9 +35,10 @@ const data = "Dyaksa";
 const encryptedHex = CryptoTs.encryptWithAes("AES_256_CBC", data);
 console.log('Encrypted Data (Hex):', encryptedHex);
 
-// // Decrypt
+// Decrypt
 const decryptedData =  CryptoTs.decryptWithAes("AES_256_CBC", encryptedHex.Value);
 console.log('Encrypted Data:', decryptedData);
+
 ```
 
 ### Test Get Heaps by Content
@@ -61,8 +62,6 @@ exampleGetHeapsByContent();
 ### Test Query
 
 ```typescript
-// index.ts
-
 // index.ts
 import { DataSource } from 'typeorm';
 import CryptoTs from '../index';
@@ -93,6 +92,7 @@ const main = async () => {
     user.password = 'securepassword';
 
     const saveToHeap = await CryptoTs.buildBlindIndex(dt, user);
+
 	console.log('Insert With Heap :', saveToHeap);
 
 };
