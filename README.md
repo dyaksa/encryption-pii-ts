@@ -9,7 +9,7 @@
 - [x] `buildBlindIndex`
 - [x] `searchContents`
 
-## Installation
+## Installation this package to your project
 
 1. Run `npm` or `yarn` to install:
     ```
@@ -22,42 +22,15 @@
     CRYPTO_HMAC_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     ```
 
+## Installation this project
+
+1. Run `npm` or `yarn` to install:
+	```
+	npm install
+	```
+
 ## Usage Examples
 
-### Test Encrypt and Decrypt
-
-```typescript
-import CryptoTs from "../index";
-
-const data = "Dyaksa";
-
-// Encrypt
-const encryptedHex = CryptoTs.encryptWithAes("AES_256_CBC", data);
-console.log('Encrypted Data (Hex):', encryptedHex);
-
-// Decrypt
-const decryptedData =  CryptoTs.decryptWithAes("AES_256_CBC", encryptedHex.Value);
-console.log('Decrypted Data:', decryptedData);
-
-```
-
-### Test Get Heaps by Content
-
-```typescript
-import CryptoTs from '../index';
-
-async function exampleGetHeapsByContent() {
-    try {
-        const inputValue = "Ali Farhan";
-        const result = await CryptoTs.searchContents(inputValue);
-        console.log('Result:', result);
-    } catch (error) {
-        console.error('Error fetching heaps by content:', error);
-    }
-}
-
-exampleGetHeapsByContent();
-```
 
 ### Create Table Text Heap in Your DB
 
@@ -175,6 +148,42 @@ const main = async () => {
 
 main();
 ```
+
+### Test Get Heaps by Content
+
+```typescript
+import CryptoTs from '../index';
+
+async function exampleGetHeapsByContent() {
+    try {
+        const inputValue = "Ali Farhan";
+        const result = await CryptoTs.searchContents(inputValue);
+        console.log('Result:', result);
+    } catch (error) {
+        console.error('Error fetching heaps by content:', error);
+    }
+}
+
+exampleGetHeapsByContent();
+```
+
+### Test Encrypt and Decrypt
+
+```typescript
+import CryptoTs from "../index";
+
+const data = "Dyaksa";
+
+// Encrypt
+const encryptedHex = CryptoTs.encryptWithAes("AES_256_CBC", data);
+console.log('Encrypted Data (Hex):', encryptedHex);
+
+// Decrypt
+const decryptedData =  CryptoTs.decryptWithAes("AES_256_CBC", encryptedHex.Value);
+console.log('Decrypted Data:', decryptedData);
+
+```
+
 
 ## Change Log
 

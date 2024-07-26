@@ -1,3 +1,6 @@
+export interface FindTextHeapByContentParams {
+	content: string;
+}
 
 export interface FindTextHeapByHashParams {
 	hash: string;
@@ -14,16 +17,6 @@ export interface TextHeap {
 	type: string;
 	hash: string;
 }
-
-export interface NullType<T> {
-	valid: boolean;
-	value: T | null;
-}
-
-export interface Crypto {
-	hmacFunc: () => (data: string) => string;
-}
-
 export class AesCipher {
 	Value: string | Buffer;
 	To: string | Buffer;

@@ -1,5 +1,5 @@
 import { commonGenerateDigest } from './hmac';
-import { AesCipher, TextHeap } from './types';
+import { AesCipher, FindTextHeapByContentParams, FindTextHeapRow, TextHeap } from './types';
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 import { encryptWithAes } from './aes_encryption';
@@ -99,19 +99,19 @@ export const saveToHeap = async (dt: DataSource, textHeaps: TextHeap[]): Promise
 
 // SearchContents
 export const searchContents = async (
-	value: string
-): Promise<any> => {
-	const values = split(value);
-	const builder = new Set<string>();
+  datasource: DataSource,
+  table: string,
+  args: FindTextHeapByContentParams
+): Promise<FindTextHeapRow[]> => {
+  const query = `SELECT id, content, hash FROM ${table} WHERE content ILIKE '%' || $1 || '%'`;
+  const parameters = [args.content];
+  const result = await datasource.query(query, parameters);
 
-	values.forEach(val => {
-		const hash = commonGenerateDigest('SHA256', val);
-		const hash8LastChar = getLast8Characters(hash);
-		builder.add(hash8LastChar);
-	});
-
-	const result = Array.from(builder).join('')
-	return result
+  return result.map((row: any) => ({
+    id: row.id,
+    content: row.content,
+    hash: row.hash,
+  }));
 };
 
 // buildBlindIndex
