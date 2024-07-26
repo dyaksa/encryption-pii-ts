@@ -92,16 +92,15 @@ const saveToHeap = (dt, textHeaps) => __awaiter(void 0, void 0, void 0, function
 });
 exports.saveToHeap = saveToHeap;
 // SearchContents
-const searchContents = (value) => __awaiter(void 0, void 0, void 0, function* () {
-    const values = (0, exports.split)(value);
-    const builder = new Set();
-    values.forEach(val => {
-        const hash = (0, hmac_1.commonGenerateDigest)('SHA256', val);
-        const hash8LastChar = (0, exports.getLast8Characters)(hash);
-        builder.add(hash8LastChar);
-    });
-    const result = Array.from(builder).join('');
-    return result;
+const searchContents = (datasource, table, args) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = `SELECT id, content, hash FROM ${table} WHERE content ILIKE '%' || $1 || '%'`;
+    const parameters = [args.content];
+    const result = yield datasource.query(query, parameters);
+    return result.map((row) => ({
+        id: row.id,
+        content: row.content,
+        hash: row.hash,
+    }));
 });
 exports.searchContents = searchContents;
 // buildBlindIndex

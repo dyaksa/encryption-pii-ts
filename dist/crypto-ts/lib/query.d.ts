@@ -1,4 +1,4 @@
-import { TextHeap } from './types';
+import { FindTextHeapByContentParams, FindTextHeapRow, TextHeap } from './types';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 export declare const split: (value: string) => string[];
@@ -9,5 +9,5 @@ export declare const buildHeap: (value: string, typeHeap: string) => {
     heaps: TextHeap[];
 };
 export declare const saveToHeap: (dt: DataSource, textHeaps: TextHeap[]) => Promise<void>;
-export declare const searchContents: (value: string) => Promise<any>;
+export declare const searchContents: (datasource: DataSource, table: string, args: FindTextHeapByContentParams) => Promise<FindTextHeapRow[]>;
 export declare const buildBlindIndex: (dt: DataSource, entity: any) => Promise<any>;

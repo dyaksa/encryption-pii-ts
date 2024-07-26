@@ -30,8 +30,7 @@ const main = async () => {
 
     const saveToHeap = await CryptoTs.buildBlindIndex(dt, user);
 
-	
-	// console.log('Insert With Heap :', saveToHeap);
+	console.log('Insert With Heap :', saveToHeap);
 
 };
 

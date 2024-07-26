@@ -35,6 +35,6 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     user.age = 25;
     user.password = 'securepassword';
     const saveToHeap = yield index_1.default.buildBlindIndex(dt, user);
-    // console.log('Insert With Heap :', saveToHeap);
+    console.log('Insert With Heap :', saveToHeap);
 });
 main();
