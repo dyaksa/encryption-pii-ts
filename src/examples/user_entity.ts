@@ -43,4 +43,31 @@ export class User {
     @Column()
     @CryptoTs.DBColumn('password')
     password: string;
+
+	@Column('bytea')
+    @CryptoTs.DBColumn('phone')
+    @CryptoTs.BidxCol('phone_bidx')
+    @CryptoTs.TxtHeapTable('phone_text_heap')
+    phone: Buffer;
+
+    @Column()
+    phone_bidx: string;
+
+    @Column('bytea')
+    @CryptoTs.DBColumn('nik')
+    @CryptoTs.BidxCol('nik_bidx')
+    @CryptoTs.TxtHeapTable('nik_text_heap')
+    nik: Buffer;
+
+    @Column()
+    nik_bidx: string;
+
+    @Column('bytea')
+    @CryptoTs.DBColumn('npwp')
+    @CryptoTs.BidxCol('npwp_bidx')
+    @CryptoTs.TxtHeapTable('npwp_text_heap')
+    npwp: Buffer;
+
+    @Column()
+    npwp_bidx: string;
 }

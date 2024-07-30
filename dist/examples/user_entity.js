@@ -64,6 +64,39 @@ __decorate([
     index_1.default.DBColumn('password'),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
+__decorate([
+    (0, typeorm_1.Column)('bytea'),
+    index_1.default.DBColumn('phone'),
+    index_1.default.BidxCol('phone_bidx'),
+    index_1.default.TxtHeapTable('phone_text_heap'),
+    __metadata("design:type", Buffer)
+], User.prototype, "phone", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], User.prototype, "phone_bidx", void 0);
+__decorate([
+    (0, typeorm_1.Column)('bytea'),
+    index_1.default.DBColumn('nik'),
+    index_1.default.BidxCol('nik_bidx'),
+    index_1.default.TxtHeapTable('nik_text_heap'),
+    __metadata("design:type", Buffer)
+], User.prototype, "nik", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], User.prototype, "nik_bidx", void 0);
+__decorate([
+    (0, typeorm_1.Column)('bytea'),
+    index_1.default.DBColumn('npwp'),
+    index_1.default.BidxCol('npwp_bidx'),
+    index_1.default.TxtHeapTable('npwp_text_heap'),
+    __metadata("design:type", Buffer)
+], User.prototype, "npwp", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], User.prototype, "npwp_bidx", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)('users')
 ], User);
