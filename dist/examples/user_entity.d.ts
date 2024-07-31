@@ -8,4 +8,10 @@ export declare class User {
     address_bidx: string;
     age: number | null;
     password: string;
+    phone: Buffer;
+    phone_bidx: string;
+    nik: Buffer;
+    nik_bidx: string;
+    npwp: Buffer;
+    npwp_bidx: string;
 }

@@ -25,6 +25,9 @@ const main = async () => {
     user.name = encryptWithAes('AES_256_CBC','Dyaksa Rahadian');
     user.email = encryptWithAes('AES_256_CBC','dyaksa.rahadian@gmail.com');
     user.address = encryptWithAes('AES_256_CBC', 'Demak Berung');
+	user.phone = encryptWithAes('AES_256_CBC', '089936134088');
+    user.nik = encryptWithAes('AES_256_CBC', '3215012306970009');
+    user.npwp = encryptWithAes('AES_256_CBC', '311501230697000');
     user.age = 25;
     user.password = 'securepassword';
 

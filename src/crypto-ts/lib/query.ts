@@ -2,8 +2,10 @@ import { commonGenerateDigest } from './hmac';
 import { AesCipher, FindTextHeapByContentParams, FindTextHeapRow, TextHeap } from './types';
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
-import { encryptWithAes } from './aes_encryption';
 import { DataSource } from 'typeorm';
+import { isValidPhone, parsePhone, phoneToString } from '../validate/phone';
+import { isValidNIK, nikToString, parseNIK } from '../validate/nik';
+import { isValidNPWP, npwpToString, parseNPWP } from '../validate/npwp';
 
 dotenv.config();
 
@@ -16,12 +18,30 @@ export const split = (value: string): string[] => {
 	const reg = '[a-zA-Z0-9]+';
 	const regex = new RegExp(reg, 'g');
 
-	if (validateEmail(value)) {
-		sep = '@';
-	}
+
+	if (isValidPhone(value)) {
+		const parsedPhone = parsePhone(value);
+		const phoneStr = phoneToString(parsedPhone);
+		sep = '-';
+		value = phoneStr; 
+    } else if (isValidNIK(value)) {
+		const parseNik = parseNIK(value);
+		const nikStr = nikToString(parseNik);
+		sep = '.';
+		value = nikStr; 
+	} else if (isValidNPWP(value)) {
+		const parseNpwp = parseNPWP(value);
+		const npwpStr = npwpToString(parseNpwp);
+		sep = '.';
+		value = npwpStr; 
+	} else if (validateEmail(value)) {
+        sep = '@';
+    }
 
 	const parts = value.split(sep);
-	return parts.flatMap(part => part.match(regex) || []);
+	const result = parts.flatMap(part => part.match(regex) || []);
+
+	return result;
 };
 
 export const getLast8Characters = (input: string): string => {

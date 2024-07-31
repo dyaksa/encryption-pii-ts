@@ -32,6 +32,9 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     user.name = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Dyaksa Rahadian');
     user.email = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'dyaksa.rahadian@gmail.com');
     user.address = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Demak Berung');
+    user.phone = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '089936134088');
+    user.nik = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '3215012306970009');
+    user.npwp = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '311501230697000');
     user.age = 25;
     user.password = 'securepassword';
     const saveToHeap = yield index_1.default.buildBlindIndex(dt, user);
