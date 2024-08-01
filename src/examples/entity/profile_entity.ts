@@ -1,10 +1,10 @@
 // entity.ts
-import { AesCipher } from '../crypto-ts/lib/types';
-import CryptoTs from '../index';
+import { AesCipher } from '../../crypto-ts/lib/types';
+import CryptoTs from '../../index';
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('users')
-export class User {
+@Entity('profile')
+export class Profile {
     @PrimaryGeneratedColumn('uuid')
     @CryptoTs.DBColumn('id')
     id: string;
@@ -13,7 +13,7 @@ export class User {
     @CryptoTs.DBColumn('name')
     @CryptoTs.BidxCol('name_bidx')
     @CryptoTs.TxtHeapTable('name_text_heap')
-    name: Buffer;
+    name: AesCipher
 
     @Column()
     name_bidx: string;
@@ -22,7 +22,7 @@ export class User {
     @CryptoTs.DBColumn('email')
     @CryptoTs.BidxCol('email_bidx')
     @CryptoTs.TxtHeapTable('email_text_heap')
-    email: Buffer;
+    email: AesCipher;
 
     @Column()
     email_bidx: string;
@@ -31,43 +31,17 @@ export class User {
     @CryptoTs.DBColumn('address')
     @CryptoTs.BidxCol('address_bidx')
     @CryptoTs.TxtHeapTable('address_text_heap')
-    address: Buffer;
+    address: AesCipher;
 
     @Column()
     address_bidx: string;
 
-    @Column({ type: 'int', nullable: true, default: 25 }) // Define 'age' column as nullable
+    @Column({ type: 'int', nullable: true, default: 0 }) // Define 'age' column as nullable
     @CryptoTs.DBColumn('age')
     age: number | null; // Adjust the type to accept null values
 
     @Column()
     @CryptoTs.DBColumn('password')
     password: string;
-
-	@Column('bytea')
-    @CryptoTs.DBColumn('phone')
-    @CryptoTs.BidxCol('phone_bidx')
-    @CryptoTs.TxtHeapTable('phone_text_heap')
-    phone: Buffer;
-
-    @Column()
-    phone_bidx: string;
-
-    @Column('bytea')
-    @CryptoTs.DBColumn('nik')
-    @CryptoTs.BidxCol('nik_bidx')
-    @CryptoTs.TxtHeapTable('nik_text_heap')
-    nik: Buffer;
-
-    @Column()
-    nik_bidx: string;
-
-    @Column('bytea')
-    @CryptoTs.DBColumn('npwp')
-    @CryptoTs.BidxCol('npwp_bidx')
-    @CryptoTs.TxtHeapTable('npwp_text_heap')
-    npwp: Buffer;
-
-    @Column()
-    npwp_bidx: string;
 }
+

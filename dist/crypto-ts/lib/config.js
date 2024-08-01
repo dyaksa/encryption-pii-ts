@@ -9,17 +9,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const index_1 = require("../index");
-function exampleGetHeapsByContent() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const inputValue = "Ali";
-            const result = yield index_1.default.searchContents('name_text_heap', { content: inputValue });
-            console.log('Result:', result);
-        }
-        catch (error) {
-            console.error('Error fetching heaps by content:', error);
-        }
-    });
-}
-exampleGetHeapsByContent();
+exports.dt_conf = void 0;
+const typeorm_1 = require("typeorm");
+const dt_conf = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const dt = new typeorm_1.DataSource({
+            type: 'postgres',
+            host: process.env.DB_AUTH_HOST || 'localhost',
+            port: parseInt(process.env.DB_AUTH_PORT || '35432', 10),
+            username: process.env.DB_AUTH_USERNAME || '',
+            password: process.env.DB_AUTH_PASSWORD || '',
+            database: process.env.DB_AUTH_DATABASE || '',
+        });
+        yield dt.initialize();
+        return dt;
+    }
+    catch (error) {
+        throw error;
+    }
+});
+exports.dt_conf = dt_conf;
