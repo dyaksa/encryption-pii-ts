@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { isValidPhone, parsePhone, phoneToString } from '../validate/phone';
 import { isValidNIK, nikToString, parseNIK } from '../validate/nik';
 import { isValidNPWP, npwpToString, parseNPWP } from '../validate/npwp';
+import { dt_conf } from './config';
 
 dotenv.config();
 
@@ -71,8 +72,10 @@ export const buildHeap = (value: string, typeHeap: string): { str: string; heaps
 	return { str: Array.from(builder).join(''), heaps };
 };
 
-export const saveToHeap = async (dt: DataSource, textHeaps: TextHeap[]): Promise<void> => {
-    await dt.transaction(async (entityManager) => {
+export const saveToHeap = async (textHeaps: TextHeap[]): Promise<void> => {
+    const dt = await dt_conf();
+	
+	await dt.transaction(async (entityManager) => {
         // Group textHeaps by their type
         const textHeapsByType = textHeaps.reduce((acc, th) => {
             if (!acc[th.type]) {
@@ -119,24 +122,23 @@ export const saveToHeap = async (dt: DataSource, textHeaps: TextHeap[]): Promise
 
 // SearchContents
 export const searchContents = async (
-  datasource: DataSource,
-  table: string,
-  args: FindTextHeapByContentParams
+	table: string,
+	args: FindTextHeapByContentParams
 ): Promise<FindTextHeapRow[]> => {
-  const query = `SELECT id, content, hash FROM ${table} WHERE content ILIKE '%' || $1 || '%'`;
-  const parameters = [args.content];
-  const result = await datasource.query(query, parameters);
+	const dt = await dt_conf()
+	const query = `SELECT id, content, hash FROM ${table} WHERE content ILIKE '%' || $1 || '%'`;
+	const parameters = [args.content];
+	const result = await dt.query(query, parameters);
 
-  return result.map((row: any) => ({
-    id: row.id,
-    content: row.content,
-    hash: row.hash,
-  }));
+	return result.map((row: any) => ({
+		id: row.id,
+		content: row.content,
+		hash: row.hash,
+	}));
 };
 
 // buildBlindIndex
 export const buildBlindIndex = async (
-	dt: DataSource,
 	entity: any
 ): Promise<any> => {
 	const th: TextHeap[] = [];
@@ -170,7 +172,7 @@ export const buildBlindIndex = async (
 		}
 	}
 
-	await saveToHeap(dt, th);
+	await saveToHeap(th);
 
 	return result;
 };

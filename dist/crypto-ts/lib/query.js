@@ -17,6 +17,7 @@ const dotenv = require("dotenv");
 const phone_1 = require("../validate/phone");
 const nik_1 = require("../validate/nik");
 const npwp_1 = require("../validate/npwp");
+const config_1 = require("./config");
 dotenv.config();
 const getMetadata = (entity, key, metaKey) => {
     return Reflect.getMetadata(metaKey, entity, key);
@@ -76,7 +77,8 @@ const buildHeap = (value, typeHeap) => {
     return { str: Array.from(builder).join(''), heaps };
 };
 exports.buildHeap = buildHeap;
-const saveToHeap = (dt, textHeaps) => __awaiter(void 0, void 0, void 0, function* () {
+const saveToHeap = (textHeaps) => __awaiter(void 0, void 0, void 0, function* () {
+    const dt = yield (0, config_1.dt_conf)();
     yield dt.transaction((entityManager) => __awaiter(void 0, void 0, void 0, function* () {
         // Group textHeaps by their type
         const textHeapsByType = textHeaps.reduce((acc, th) => {
@@ -114,10 +116,11 @@ const saveToHeap = (dt, textHeaps) => __awaiter(void 0, void 0, void 0, function
 });
 exports.saveToHeap = saveToHeap;
 // SearchContents
-const searchContents = (datasource, table, args) => __awaiter(void 0, void 0, void 0, function* () {
+const searchContents = (table, args) => __awaiter(void 0, void 0, void 0, function* () {
+    const dt = yield (0, config_1.dt_conf)();
     const query = `SELECT id, content, hash FROM ${table} WHERE content ILIKE '%' || $1 || '%'`;
     const parameters = [args.content];
-    const result = yield datasource.query(query, parameters);
+    const result = yield dt.query(query, parameters);
     return result.map((row) => ({
         id: row.id,
         content: row.content,
@@ -126,7 +129,7 @@ const searchContents = (datasource, table, args) => __awaiter(void 0, void 0, vo
 });
 exports.searchContents = searchContents;
 // buildBlindIndex
-const buildBlindIndex = (dt, entity) => __awaiter(void 0, void 0, void 0, function* () {
+const buildBlindIndex = (entity) => __awaiter(void 0, void 0, void 0, function* () {
     const th = [];
     const result = {};
     for (const key in entity) {
@@ -152,7 +155,7 @@ const buildBlindIndex = (dt, entity) => __awaiter(void 0, void 0, void 0, functi
             }
         }
     }
-    yield (0, exports.saveToHeap)(dt, th);
+    yield (0, exports.saveToHeap)(th);
     return result;
 });
 exports.buildBlindIndex = buildBlindIndex;

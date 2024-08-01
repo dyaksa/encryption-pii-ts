@@ -18,8 +18,14 @@
 
 2. Set the keys in your `.env` file:
     ```
-    CRYPTO_AES_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    CRYPTO_HMAC_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	CRYPTO_AES_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	CRYPTO_HMAC_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+	DB_AUTH_HOST=localhost
+	DB_AUTH_PORT=5xxx
+	DB_AUTH_USERNAME=username
+	DB_AUTH_PASSWORD=password
+	DB_AUTH_DATABASE=db_name
     ```
 
 ## Installation this project
@@ -35,34 +41,56 @@
 ### Create Table Text Heap in Your DB
 
 ```sql
-CREATE TABLE "name_text_heap" (
-    "id" uuid NOT NULL DEFAULT uuid_generate_v4(), 
-    "content" character varying NOT NULL, 
-    "hash" character varying NOT NULL, 
-    CONSTRAINT "PK_71ee3e36c8f22eed301f56ada02" PRIMARY KEY ("id")
+CREATE TABLE IF NOT EXISTS "npwp_text_heap" (
+	"id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+	"content" VARCHAR NOT NULL,
+	"hash" VARCHAR NOT NULL,
+	PRIMARY KEY ("id")
 );
 
-CREATE TABLE "email_text_heap" (
-    "id" uuid NOT NULL DEFAULT uuid_generate_v4(), 
-    "content" character varying NOT NULL, 
-    "hash" character varying NOT NULL, 
-    CONSTRAINT "PK_403649abdb24b9c7598045628ca" PRIMARY KEY ("id")
+CREATE TABLE IF NOT EXISTS "name_text_heap" (
+	"id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+	"content" VARCHAR NOT NULL,
+	"hash" VARCHAR NOT NULL,
+	PRIMARY KEY ("id")
 );
 
-CREATE TABLE "address_text_heap" (
-    "id" uuid NOT NULL DEFAULT uuid_generate_v4(), 
-    "content" character varying NOT NULL, 
-    "hash" character varying NOT NULL, 
-    CONSTRAINT "PK_228f0436c1bed1112c77a6fcabd" PRIMARY KEY ("id")
+CREATE TABLE IF NOT EXISTS "phone_text_heap" (
+	"id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+	"content" VARCHAR NOT NULL,
+	"hash" VARCHAR NOT NULL,
+	PRIMARY KEY ("id")
 );
+
+CREATE TABLE IF NOT EXISTS "email_text_heap" (
+	"id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+	"content" VARCHAR NOT NULL,
+	"hash" VARCHAR NOT NULL,
+	PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "address_text_heap" (
+	"id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+	"content" VARCHAR NOT NULL,
+	"hash" VARCHAR NOT NULL,
+	PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "nik_text_heap" (
+	"id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+	"content" VARCHAR NOT NULL,
+	"hash" VARCHAR NOT NULL,
+	PRIMARY KEY ("id")
+);
+
 ```
 
 ### Define Column Encrypt
 
 ```typescript
 // entity.ts
-import { AesCipher } from '../crypto-ts/lib/types';
-import CryptoTs from '../index';
+import { AesCipher } from '../../crypto-ts/lib/types';
+import CryptoTs from '../../index';
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
@@ -105,6 +133,33 @@ export class User {
     @Column()
     @CryptoTs.DBColumn('password')
     password: string;
+
+	@Column('bytea')
+    @CryptoTs.DBColumn('phone')
+    @CryptoTs.BidxCol('phone_bidx')
+    @CryptoTs.TxtHeapTable('phone_text_heap')
+    phone: Buffer;
+
+    @Column()
+    phone_bidx: string;
+
+    @Column('bytea')
+    @CryptoTs.DBColumn('nik')
+    @CryptoTs.BidxCol('nik_bidx')
+    @CryptoTs.TxtHeapTable('nik_text_heap')
+    nik: Buffer;
+
+    @Column()
+    nik_bidx: string;
+
+    @Column('bytea')
+    @CryptoTs.DBColumn('npwp')
+    @CryptoTs.BidxCol('npwp_bidx')
+    @CryptoTs.TxtHeapTable('npwp_text_heap')
+    npwp: Buffer;
+
+    @Column()
+    npwp_bidx: string;
 }
 ```
 
@@ -112,35 +167,24 @@ export class User {
 
 ```typescript
 // index.ts
-import { DataSource } from 'typeorm';
 import CryptoTs from '../index';
-import { User } from './user_entity';
+import { User } from './entity/user_entity';
 import { encryptWithAes } from '../crypto-ts/lib/aes_encryption';
 
 // Example usage
 const main = async () => {
-	// Initialize the DataSource
-	const dt = new DataSource({
-		type: 'postgres',
-		host: 'localhost',
-		port: 5432,
-		username: 'postgres',
-		password: 'mysecretpassword',
-		database: 'sandbox_nest',
-		synchronize: true,
-		entities: [User],
-	});
-
-	await dt.initialize();
 
 	const user = new User();
-    user.name = encryptWithAes('AES_256_CBC','Dyaksa Rahadian');
-    user.email = encryptWithAes('AES_256_CBC','dyaksa.rahadian@gmail.com');
-    user.address = encryptWithAes('AES_256_CBC', 'Demak Berung');
+    user.name = encryptWithAes('AES_256_CBC','Mohamad Ali Farhan');
+    user.email = encryptWithAes('AES_256_CBC','ali.farhan@yopmail.com');
+    user.address = encryptWithAes('AES_256_CBC', 'address yang rahasia');
+	user.phone = encryptWithAes('AES_256_CBC', '0899361349');
+    user.nik = encryptWithAes('AES_256_CBC', '3215012506200007');
+    user.npwp = encryptWithAes('AES_256_CBC', '311501230697000');
     user.age = 25;
     user.password = 'securepassword';
 
-    const saveToHeap = await CryptoTs.buildBlindIndex(dt, user);
+    const saveToHeap = await CryptoTs.buildBlindIndex(user);
 
 	console.log('Insert With Heap :', saveToHeap);
 
@@ -149,15 +193,15 @@ const main = async () => {
 main();
 ```
 
-### Test Get Heaps by Content
+### Test Search Content
 
 ```typescript
 import CryptoTs from '../index';
 
 async function exampleGetHeapsByContent() {
-    try {
-        const inputValue = "Ali Farhan";
-        const result = await CryptoTs.searchContents(inputValue);
+	try {
+        const inputValue = "Ali";
+        const result = await CryptoTs.searchContents('name_text_heap', {content: inputValue});
         console.log('Result:', result);
     } catch (error) {
         console.error('Error fetching heaps by content:', error);
@@ -180,8 +224,7 @@ console.log('Encrypted Data (Hex):', encryptedHex);
 
 // Decrypt
 const decryptedData =  CryptoTs.decryptWithAes("AES_256_CBC", encryptedHex.Value);
-console.log('Decrypted Data:', decryptedData);
-
+console.log('Encrypted Data:', decryptedData);
 ```
 
 

@@ -10,34 +10,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // index.ts
-const typeorm_1 = require("typeorm");
 const index_1 = require("../index");
-const user_entity_1 = require("./user_entity");
+const user_entity_1 = require("./entity/user_entity");
 const aes_encryption_1 = require("../crypto-ts/lib/aes_encryption");
 // Example usage
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
-    // Initialize the DataSource
-    const dt = new typeorm_1.DataSource({
-        type: 'postgres',
-        host: 'localhost',
-        port: 5432,
-        username: 'postgres',
-        password: 'mysecretpassword',
-        database: 'sandbox_nest',
-        synchronize: true,
-        entities: [user_entity_1.User],
-    });
-    yield dt.initialize();
     const user = new user_entity_1.User();
-    user.name = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Dyaksa Rahadian');
-    user.email = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'dyaksa.rahadian@gmail.com');
-    user.address = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Demak Berung');
-    user.phone = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '089936134088');
-    user.nik = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '3215012306970009');
+    user.name = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Mohamad Ali Farhan');
+    user.email = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'ali.farhan@yopmail.com');
+    user.address = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'address yang rahasia');
+    user.phone = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '0899361349');
+    user.nik = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '3215012506200007');
     user.npwp = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '311501230697000');
     user.age = 25;
     user.password = 'securepassword';
-    const saveToHeap = yield index_1.default.buildBlindIndex(dt, user);
+    const saveToHeap = yield index_1.default.buildBlindIndex(user);
     console.log('Insert With Heap :', saveToHeap);
 });
 main();
