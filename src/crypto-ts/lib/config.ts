@@ -12,11 +12,9 @@ export const dt_conf = async () => {
 		});
 
 		await dt.initialize();
-		console.log("Data Source has been initialized!");
 
 		return dt;
 	} catch (error) {
-		console.error("Error during Data Source initialization:", error);
 		throw error;
 	}
 };

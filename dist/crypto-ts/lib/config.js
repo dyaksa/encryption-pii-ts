@@ -22,11 +22,9 @@ const dt_conf = () => __awaiter(void 0, void 0, void 0, function* () {
             database: process.env.DB_AUTH_DATABASE || '',
         });
         yield dt.initialize();
-        console.log("Data Source has been initialized!");
         return dt;
     }
     catch (error) {
-        console.error("Error during Data Source initialization:", error);
         throw error;
     }
 });
