@@ -4,10 +4,10 @@ import algorithms from './alg';
 import keyUtil from './key_util';
 import * as dotenv from 'dotenv';
 import { AesCipher } from './types';
-import * as cryptoJs from 'crypto-js';
 import { execFile } from 'child_process';
 import path = require('path');
 import { promisify } from 'util';
+import * as os from 'os';
 
 const execFilePromise = promisify(execFile);
 
@@ -75,6 +75,42 @@ const createDecipherivShim = (
 	return cipher;
 };
 
+const getBinaryPath = (binaryFolder, binaryName: string): string => {
+	const platform = os.platform();
+	let binaryPath = '';
+
+	switch (platform) {
+		case 'win32':
+			binaryPath = path.join(
+				__dirname,
+				'bin',
+				`${binaryFolder}`,
+				`${binaryName}.exe`,
+			);
+			break;
+		case 'linux':
+			binaryPath = path.join(
+				__dirname,
+				'bin',
+				`${binaryFolder}`,
+				`${binaryName}-linux`,
+			);
+			break;
+		case 'darwin':
+			binaryPath = path.join(
+				__dirname,
+				'bin',
+				`${binaryFolder}`,
+				`${binaryName}-darwin`,
+			);
+			break;
+		default:
+			throw new Error(`Unsupported platform: ${platform}`);
+	}
+
+	return binaryPath;
+};
+
 /**
  * @param alg {string}
  * @param key {string}
@@ -101,12 +137,14 @@ const decrypt = async (
 	}
 
 	try {
-		const binaryPath = path.resolve(
-			__dirname,
-			'bin',
-			'decrypt',
-			'decryptor',
-		);
+		// const binaryPath = path.resolve(
+		// 	__dirname,
+		// 	'bin',
+		// 	'decrypt',
+		// 	'decryptor',
+		// );
+
+		const binaryPath = getBinaryPath('decrypt', 'decryptor');
 
 		const keyBuf = Buffer.from(key);
 		const encryptedData = Buffer.from(data.toString());
@@ -200,7 +238,7 @@ const encrypt = async (
 		);
 	}
 
-	const binaryPath = path.resolve(__dirname, 'bin', 'encrypt', 'encryptor');
+	const binaryPath = getBinaryPath('encrypt', 'encryptor');
 
 	const keyBuf = Buffer.from(key);
 	const plainData = Buffer.from(data.toString());
