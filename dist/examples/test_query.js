@@ -16,12 +16,12 @@ const aes_encryption_1 = require("../crypto-ts/lib/aes_encryption");
 // Example usage
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const user = new user_entity_1.User();
-    user.name = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Mohamad Ali Farhan');
-    user.email = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'ali.farhan@yopmail.com');
-    user.address = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'address yang rahasia');
-    user.phone = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '0899361349');
-    user.nik = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '3215012506200007');
-    user.npwp = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '311501230697000');
+    user.name = yield (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Mohamad Ali Farhan');
+    user.email = yield (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'ali.farhan@yopmail.com');
+    user.address = yield (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'address yang rahasia');
+    user.phone = yield (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '0899361349');
+    user.nik = yield (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '3215012506200007');
+    user.npwp = yield (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '311501230697000');
     user.age = 25;
     user.password = 'securepassword';
     const saveToHeap = yield index_1.default.buildBlindIndex(user);

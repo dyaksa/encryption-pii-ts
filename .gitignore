@@ -18,6 +18,9 @@ lerna-debug.log*
 
 .env
 
+*.go
+*.mod
+
 # Tests
 /coverage
 /.nyc_output

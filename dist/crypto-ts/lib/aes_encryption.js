@@ -1,12 +1,24 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.encryptWithAes = exports.decryptWithAes = void 0;
 const crypto_1 = require("crypto");
 const buffer_1 = require("buffer");
 const alg_1 = require("./alg");
-const key_util_1 = require("./key_util");
 const dotenv = require("dotenv");
 const types_1 = require("./types");
+const child_process_1 = require("child_process");
+const path = require("path");
+const util_1 = require("util");
+const execFilePromise = (0, util_1.promisify)(child_process_1.execFile);
 const DEFAULT_AUTH_TAG_LENGTH = 16;
 const SUPPORTED_AUTH_TAG_MODES = ['gcm', 'ccm', 'ocb', 'chacha20-poly1305'];
 dotenv.config();
@@ -55,7 +67,7 @@ const createDecipherivShim = (algorithm, key, iv, options) => {
  * @param data {string | Buffer}
  * @return {Buffer}
  */
-const decrypt = (alg, key, data) => {
+const decrypt = (alg, key, data) => __awaiter(void 0, void 0, void 0, function* () {
     // Ensure data is a valid type
     if (typeof data !== 'object' && typeof data !== 'string') {
         throw new Error('Error: data param should be an object or string');
@@ -65,76 +77,73 @@ const decrypt = (alg, key, data) => {
     if (key.length !== metaAlg.expectedKeyLen) {
         throw new Error(`Invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
     }
-    const keyBuf = buffer_1.Buffer.from(key);
-    const cipherOptions = {
-        authTagLength: DEFAULT_AUTH_TAG_LENGTH,
-    };
-    // Convert data to a buffer
-    const buf = buffer_1.Buffer.from(data.toString('hex'), 'hex');
-    const nonceBuf = buf.subarray(0, metaAlg.ivLen);
-    // Create decipher instance
-    const decipher = createDecipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
-    let encryptedBuf;
-    // Handle authentication tag if necessary
-    if (SUPPORTED_AUTH_TAG_MODES.includes(metaAlg.mode)) {
-        const sFrom = buf.length - DEFAULT_AUTH_TAG_LENGTH;
-        const authTagUtf8 = buf.subarray(sFrom, buf.length);
-        decipher.setAuthTag(authTagUtf8);
-        encryptedBuf = buf.subarray(metaAlg.ivLen, sFrom);
+    try {
+        const binaryPath = path.resolve(__dirname, 'bin', 'decrypt', 'decryptor');
+        const keyBuf = buffer_1.Buffer.from(key);
+        const encryptedData = buffer_1.Buffer.from(data.toString());
+        const algorithm = 0;
+        const args = [
+            '-alg',
+            algorithm.toString(),
+            '-key',
+            keyBuf.toString('hex'),
+            '-data',
+            encryptedData.toString('hex'),
+        ];
+        const { stdout, stderr } = yield execFilePromise(binaryPath, args);
+        if (stderr) {
+            throw new Error(stderr);
+        }
+        const decryptedData = buffer_1.Buffer.from(stdout.trim(), 'hex');
+        return decryptedData.toString();
     }
-    else {
-        encryptedBuf = buf.subarray(metaAlg.ivLen, buf.length);
+    catch (err) {
+        throw new Error(err);
     }
-    // Perform decryption
-    let decrypted = decipher.update(encryptedBuf);
-    let remaining = decipher.final();
-    // Concatenate decrypted buffers
-    const resultBuffer = buffer_1.Buffer.concat([decrypted, remaining], decrypted.length + remaining.length);
-    return resultBuffer.toString();
-};
-const decryptWithAes = (type, data) => {
-    const key = process.env.CRYPTO_AES_KEY;
+});
+const decryptWithAes = (type, data) => __awaiter(void 0, void 0, void 0, function* () {
+    const key = 'dGtmY2hrc3Fodm5seGZ5bWRzdXphdmJr';
     let decryptValue = null;
     switch (type) {
         case 'AES_128_CBC':
-            decryptValue = decrypt(alg_1.default.AES_128_CBC, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_128_CBC, key, data);
             break;
         case 'AES_192_CBC':
-            decryptValue = decrypt(alg_1.default.AES_192_CBC, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_192_CBC, key, data);
             break;
         case 'AES_256_CBC':
-            decryptValue = decrypt(alg_1.default.AES_256_CBC, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_256_CBC, key, data);
             break;
         case 'AES_128_GCM':
-            decryptValue = decrypt(alg_1.default.AES_128_GCM, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_128_GCM, key, data);
             break;
         case 'AES_192_GCM':
-            decryptValue = decrypt(alg_1.default.AES_192_GCM, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_192_GCM, key, data);
             break;
         case 'AES_256_GCM':
-            decryptValue = decrypt(alg_1.default.AES_256_GCM, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_256_GCM, key, data);
         case 'AES_128_CCM':
-            decryptValue = decrypt(alg_1.default.AES_128_CCM, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_128_CCM, key, data);
         case 'AES_192_CCM':
-            decryptValue = decrypt(alg_1.default.AES_192_CCM, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_192_CCM, key, data);
             break;
         case 'AES_256_CCM':
-            decryptValue = decrypt(alg_1.default.AES_256_CCM, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_256_CCM, key, data);
             break;
         case 'AES_128_OCB':
-            decryptValue = decrypt(alg_1.default.AES_128_OCB, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_128_OCB, key, data);
             break;
         case 'AES_192_OCB':
-            decryptValue = decrypt(alg_1.default.AES_192_OCB, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_192_OCB, key, data);
             break;
         case 'AES_256_OCB':
-            decryptValue = decrypt(alg_1.default.AES_256_OCB, key, data);
+            decryptValue = yield decrypt(alg_1.default.AES_256_OCB, key, data);
             break;
         default:
             throw new Error('Unsupported decryption type');
     }
     return decryptValue;
-};
+});
 exports.decryptWithAes = decryptWithAes;
 /**
  * @param alg {string}
@@ -142,66 +151,84 @@ exports.decryptWithAes = decryptWithAes;
  * @param data {string | Buffer}
  * @return {{encrypted: string, nonce}}
  */
-const encrypt = (alg, key, data) => {
+const encrypt = (alg, key, data) => __awaiter(void 0, void 0, void 0, function* () {
     const metaAlg = getMetaFromAlgorithm(alg);
     if (key.length !== metaAlg.expectedKeyLen) {
         throw new Error(`invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
     }
-    const nonce = key_util_1.default.generateRandomIV(metaAlg.ivLen);
-    const nonceBuf = buffer_1.Buffer.from(nonce, 'hex');
+    const binaryPath = path.resolve(__dirname, 'bin', 'encrypt', 'encryptor');
     const keyBuf = buffer_1.Buffer.from(key);
-    const cipherOptions = {
-        authTagLength: DEFAULT_AUTH_TAG_LENGTH,
-    };
-    const cipher = createCipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
-    let encrypted = cipher.update(data.toString(), 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    // https://nodejs.org/api/crypto.html#ciphergetauthtag
-    if (SUPPORTED_AUTH_TAG_MODES.includes(metaAlg.mode)) {
-        encrypted += buffer_1.Buffer.from(cipher.getAuthTag().toString('hex'));
+    const plainData = buffer_1.Buffer.from(data.toString());
+    let algorithm = 0;
+    switch (metaAlg.mode) {
+        case 'cbc':
+            algorithm = 0;
+            break;
+        case 'gcm':
+            algorithm = 2;
+            break;
+        case 'ocb':
+            algorithm = 1;
+            break;
     }
-    const resultBuffer = buffer_1.Buffer.concat([nonceBuf, buffer_1.Buffer.from(encrypted, 'hex')], nonceBuf.length + buffer_1.Buffer.from(encrypted, 'hex').length);
-    return resultBuffer;
-};
-const encryptWithAes = (type, data) => {
-    const key = process.env.CRYPTO_AES_KEY;
+    const args = [
+        '-alg',
+        algorithm.toString(),
+        '-key',
+        keyBuf.toString('hex'),
+        '-data',
+        plainData.toString('hex'),
+    ];
+    try {
+        const { stdout, stderr } = yield execFilePromise(binaryPath, args);
+        if (stderr) {
+            throw new Error(stderr);
+        }
+        return buffer_1.Buffer.from(stdout.trim(), 'hex');
+    }
+    catch (err) {
+        throw new Error(err);
+    }
+});
+const encryptWithAes = (type, data) => __awaiter(void 0, void 0, void 0, function* () {
+    const key = 'dGtmY2hrc3Fodm5seGZ5bWRzdXphdmJr';
     let encryptedValue = null;
     switch (type) {
         case 'AES_128_CBC':
-            encryptedValue = encrypt(alg_1.default.AES_128_CBC, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_128_CBC, key, data);
             break;
         case 'AES_192_CBC':
-            encryptedValue = encrypt(alg_1.default.AES_192_CBC, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_192_CBC, key, data);
             break;
         case 'AES_256_CBC':
-            encryptedValue = encrypt(alg_1.default.AES_256_CBC, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_256_CBC, key, data);
             break;
         case 'AES_128_GCM':
-            encryptedValue = encrypt(alg_1.default.AES_128_GCM, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_128_GCM, key, data);
             break;
         case 'AES_192_GCM':
-            encryptedValue = encrypt(alg_1.default.AES_192_GCM, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_192_GCM, key, data);
             break;
         case 'AES_256_GCM':
-            encryptedValue = encrypt(alg_1.default.AES_256_GCM, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_256_GCM, key, data);
             break;
         case 'AES_128_CCM':
-            encryptedValue = encrypt(alg_1.default.AES_128_CCM, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_128_CCM, key, data);
             break;
         case 'AES_192_CCM':
-            encryptedValue = encrypt(alg_1.default.AES_192_CCM, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_192_CCM, key, data);
             break;
         case 'AES_256_CCM':
-            encryptedValue = encrypt(alg_1.default.AES_256_CCM, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_256_CCM, key, data);
             break;
         case 'AES_128_OCB':
-            encryptedValue = encrypt(alg_1.default.AES_128_OCB, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_128_OCB, key, data);
             break;
         case 'AES_192_OCB':
-            encryptedValue = encrypt(alg_1.default.AES_192_OCB, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_192_OCB, key, data);
             break;
         case 'AES_256_OCB':
-            encryptedValue = encrypt(alg_1.default.AES_256_OCB, key, data);
+            encryptedValue = yield encrypt(alg_1.default.AES_256_OCB, key, data);
             break;
         default:
             throw new Error('Unsupported encryption type');
@@ -210,5 +237,5 @@ const encryptWithAes = (type, data) => {
     cipher.Value = encryptedValue;
     cipher.To = data.toString();
     return cipher;
-};
+});
 exports.encryptWithAes = encryptWithAes;

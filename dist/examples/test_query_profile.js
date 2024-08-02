@@ -15,9 +15,9 @@ const aes_encryption_1 = require("../crypto-ts/lib/aes_encryption");
 // Example usage
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const user = new profile_entity_1.Profile();
-    user.name = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Dyaksa Rahadia');
-    user.email = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'dyaksa.rahadian@gmail.com');
-    user.address = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Demak Berung');
+    user.name = yield (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Dyaksa Rahadia');
+    user.email = yield (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'dyaksa.rahadian@gmail.com');
+    user.address = yield (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Demak Berung');
     user.age = 25;
     user.password = 'test_buf_aes';
     const saveToHeap = yield index_1.default.buildBlindIndex(user);
