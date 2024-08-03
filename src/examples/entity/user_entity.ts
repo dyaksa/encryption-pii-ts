@@ -1,5 +1,4 @@
 // entity.ts
-import { AesCipher } from '../../crypto-ts/lib/types';
 import CryptoTs from '../../index';
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 

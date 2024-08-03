@@ -1,6 +1,6 @@
 import CryptoTs from '../index';
 
-const data = 'Dyaksa';
+const data = 'Mohamad Ali Farhan';
 
 // Encrypt
 const encryptedHex = CryptoTs.encryptWithAes('AES_256_CBC', data);
@@ -11,4 +11,4 @@ const decryptedData = CryptoTs.decryptWithAes(
 	'AES_256_CBC',
 	encryptedHex.Value,
 );
-console.log('Encrypted Data:', decryptedData);
+console.log('Decrypt Data:', decryptedData);

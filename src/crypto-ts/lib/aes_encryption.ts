@@ -4,10 +4,6 @@ import algorithms from './alg';
 import keyUtil from './key_util';
 import * as dotenv from 'dotenv';
 import { AesCipher } from './types';
-import { Console } from 'console';
-
-const DEFAULT_AUTH_TAG_LENGTH = 16;
-const SUPPORTED_AUTH_TAG_MODES = ['gcm', 'ccm', 'ocb', 'chacha20-poly1305'];
 
 dotenv.config();
 
@@ -24,12 +20,25 @@ interface AlgorithmMeta {
 const getMetaFromAlgorithm = (alg: string): AlgorithmMeta => {
 	const algSplited = alg.split('-');
 	if (algSplited.length < 3) {
-		throw new Error('invalid aes algorithm');
-	}
+        throw new Error('Invalid AES algorithm format. Expected format: AES_<keyLength>_<mode>');
+    }
 
-	const keyLenInt = parseInt(algSplited[1], 10);
-	const ivLen = algSplited[2] === 'cbc' ? 16 : 12;
-	return { expectedKeyLen: keyLenInt / 8, mode: algSplited[2], ivLen };
+    const keyLenInt = parseInt(algSplited[1], 10);
+    let ivLen;
+
+    switch (algSplited[2].toLowerCase()) {
+        case 'cbc':
+            ivLen = 16;
+            break;
+        case 'ocb':
+            ivLen = 15; // Set to 15 for OCB mode, but can be adjusted as needed
+            break;
+        default:
+            ivLen = 12; // Default IV length
+            break;
+    }
+
+    return { expectedKeyLen: keyLenInt / 8, mode: algSplited[2], ivLen };
 };
 
 /**
@@ -77,109 +86,61 @@ const createDecipherivShim = (
  * @return {Buffer}
  */
 const decrypt = (alg: string, key: string, data: string | Buffer): string => {
-	// Ensure data is a valid type
-	if (typeof data !== 'object' && typeof data !== 'string') {
-		throw new Error('Error: data param should be an object or string');
-	}
+    // Ensure data is a valid type
+    if (typeof data !== 'object' && typeof data !== 'string') {
+        throw new Error('Error: data param should be an object or string');
+    }
 
-	const metaAlg = getMetaFromAlgorithm(alg);
+    const metaAlg = getMetaFromAlgorithm(alg);
 
-	// Validate key length
-	if (key.length !== metaAlg.expectedKeyLen) {
-		throw new Error(
-			`Invalid key length, key length should be ${metaAlg.expectedKeyLen}`,
-		);
-	}
+    // Validate key length
+    if (key.length !== metaAlg.expectedKeyLen) {
+        throw new Error(
+            `Invalid key length, key length should be ${metaAlg.expectedKeyLen}`,
+        );
+    }
 
-	const keyBuf = Buffer.from(key);
+    const keyBuf = Buffer.from(key, 'utf8'); // Adjusted to 'utf8' for standard string keys
+    if (keyBuf.length !== metaAlg.expectedKeyLen) {
+        throw new Error(
+            `Invalid key length after conversion, expected ${metaAlg.expectedKeyLen} bytes but got ${keyBuf.length} bytes`,
+        );
+    }
 
-	const decodedBuffer = Buffer.from(data.toString('hex'));
-	const decodedLen = decodedBuffer.length / 2;
-	const encryptedDataOut = new Uint8Array(decodedLen);
-	let encryptedDataOutN = 0;
+    // Convert data to a buffer if it's a string
+    const encryptedBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data, 'hex');
 
-	for (let i = 0; i < decodedBuffer.length; i += 2) {
-		encryptedDataOut[i / 2] = parseInt(
-			data.toString('hex').substr(i, 2),
-			16,
-		);
-	}
-	encryptedDataOutN = encryptedDataOut.length;
+    if (encryptedBuffer.length < 16) {
+        throw new Error('Invalid encrypted data');
+    }
 
-	if (encryptedDataOut.length < 16) {
-		throw new Error('Invalid encrypted data');
-	}
+    // Extract IV (first 16 bytes) and the encrypted data
+    const iv = encryptedBuffer.slice(0, 16);
+    const encryptedData = encryptedBuffer.slice(16);
 
-	const cipherDataBytes = encryptedDataOut.slice(16, encryptedDataOutN);
+    if (encryptedData.length % 16 !== 0) {
+        throw new Error('Invalid encrypted data length');
+    }
 
-	if (cipherDataBytes.length % 16 !== 0) {
-		throw new Error('Invalid encrypted data');
-	}
+    // Create a decipher instance
+    const decipher = createDecipheriv(alg, keyBuf, iv);
 
-	const nonceBytes = encryptedDataOut.slice(0, 16);
-	console.log('Key:', keyBuf);
-	console.log('IV:', nonceBytes);
-	console.log('Cipher Data Bytes:', cipherDataBytes);
+    // Decrypt the data
+    const decryptedData = Buffer.concat([
+        decipher.update(encryptedData),
+        decipher.final(),
+    ]);
 
-	const decipher = createDecipheriv('aes-256-cbc', keyBuf, nonceBytes);
+    // Remove PKCS#5 (PKCS#7) padding
+    const unpaddedData = keyUtil.pkcs5UnPadding(decryptedData);
 
-	const decryptedData = Buffer.concat([
-		decipher.update(Buffer.from(cipherDataBytes)),
-		decipher.final(),
-	]);
-
-	console.log(decryptedData);
-
-	// const decryptedData = Buffer.concat([
-	// 	decipher.update(Buffer.from(cipherDataBytes)),
-	// 	decipher.final(),
-	// ]);
-
-	// console.log(decryptedData);
-
-	// const buff = keyUtil.pkcs5UnPadding(decryptedData);
-
-	// console.log(buff);
-
-	return '';
-
-	// const cipherOptions = {
-	// 	authTagLength: DEFAULT_AUTH_TAG_LENGTH,
-	// };
-
-	// // Convert data to a buffer
-	// const buf = Buffer.from(data.toString('hex'), 'hex');
-	// const nonceBuf = buf.subarray(0, metaAlg.ivLen);
-
-	// // Create decipher instance
-	// const decipher = createDecipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
-
-	// let encryptedBuf;
-
-	// // Handle authentication tag if necessary
-	// if (SUPPORTED_AUTH_TAG_MODES.includes(metaAlg.mode)) {
-	// 	const sFrom = buf.length - DEFAULT_AUTH_TAG_LENGTH;
-	// 	const authTagUtf8 = buf.subarray(sFrom, buf.length);
-	// 	decipher.setAuthTag(authTagUtf8);
-	// 	encryptedBuf = buf.subarray(metaAlg.ivLen, sFrom);
-	// } else {
-	// 	encryptedBuf = buf.subarray(metaAlg.ivLen, buf.length);
-	// }
-
-	// // Perform decryption
-	// let decrypted = decipher.update(encryptedBuf);
-	// let remaining = decipher.final();
-
-	// // Concatenate decrypted buffers
-	// const resultBuffer = Buffer.concat(
-	// 	[decrypted, remaining],
-	// 	decrypted.length + remaining.length,
-	// );
-	// return resultBuffer.toString();
+    // Convert decrypted buffer to string
+    return unpaddedData.toString('utf-8');
 };
 
+
 export const decryptWithAes = (type: string, data: string | Buffer): string => {
-	const key = 'dGtmY2hrc3Fodm5seGZ5bWRzdXphdmJr';
+	const key = process.env.CRYPTO_AES_KEY;
 	let decryptValue: string = null;
 	switch (type) {
 		case 'AES_128_CBC':
@@ -231,6 +192,9 @@ export const decryptWithAes = (type: string, data: string | Buffer): string => {
  */
 const encrypt = (alg: string, key: string, data: string | Buffer): Buffer => {
 	const metaAlg = getMetaFromAlgorithm(alg);
+
+	console.log(key.length , metaAlg);
+
 	if (key.length !== metaAlg.expectedKeyLen) {
 		throw new Error(
 			`invalid key length, key length should be ${metaAlg.expectedKeyLen}`,
@@ -239,30 +203,30 @@ const encrypt = (alg: string, key: string, data: string | Buffer): Buffer => {
 
 	const plainDataPadded = keyUtil.pkcs5Padding(Buffer.from(data));
 
-	const cipherDataBytes = new Uint8Array(plainDataPadded.length + 16);
-
-	keyUtil.generateRandIV(cipherDataBytes.subarray(0, 16));
-
-	const keyB = Buffer.from(key);
-
-	const cipher = createCipheriv(
-		'aes-256-cbc',
-		keyB,
-		cipherDataBytes.subarray(0, 16),
-	);
-
-	const encrypted = Buffer.concat([
-		cipher.update(plainDataPadded),
-		cipher.final(),
-	]);
-
-	encrypted.copy(cipherDataBytes, 16);
-
-	return encrypted;
+	 // Generate random IV (initialization vector)
+	 const iv = Buffer.alloc(16); // 16 bytes for AES block size
+	 keyUtil.generateRandIV(iv);
+ 
+	 const keyB = Buffer.from(key);
+ 
+	 // Create cipher instance
+	 const cipher = createCipheriv(alg, keyB, iv);
+ 
+	 // Encrypt the padded data
+	 const encrypted = Buffer.concat([
+		 cipher.update(plainDataPadded),
+		 cipher.final(),
+	 ]);
+ 
+	 // Concatenate IV and encrypted data into one buffer
+	 const resultBuffer = Buffer.concat([iv, encrypted]);
+ 
+	 return resultBuffer;
+	
 };
 
 export const encryptWithAes = (type: string, data: string | Buffer): any => {
-	const key = 'dGtmY2hrc3Fodm5seGZ5bWRzdXphdmJr';
+	const key = process.env.CRYPTO_AES_KEY;
 	let encryptedValue: Buffer = null;
 	switch (type) {
 		case 'AES_128_CBC':

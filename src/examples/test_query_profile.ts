@@ -1,6 +1,5 @@
 
 // index.ts
-import { DataSource } from 'typeorm';
 import CryptoTs from '../index';
 import { Profile } from './entity/profile_entity';
 import { encryptWithAes } from '../crypto-ts/lib/aes_encryption';
