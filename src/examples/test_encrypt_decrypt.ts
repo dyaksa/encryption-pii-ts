@@ -1,6 +1,6 @@
 import CryptoTs from '../index';
 
-const data = 'Dyaksa';
+const data = 'Dyaksa Jauharuddin Nour';
 
 // Encrypt
 const encryptedHex = CryptoTs.encryptWithAes('AES_256_CBC', data);
