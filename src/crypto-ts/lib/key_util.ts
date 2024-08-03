@@ -51,6 +51,8 @@ function pkcs5UnPadding(src: Buffer): Buffer {
 	const unpadding = src[length - 1];
 	const newLength = length - unpadding;
 
+	console.log("newLength", newLength);
+
 	if (newLength < 0) {
 		throw new Error('invalid encrypted data or key');
 	}

@@ -11,7 +11,7 @@ const main = async () => {
 	const dt = await dt_conf();
 
 	const user = new User();
-    user.name = encryptWithAes('AES_256_CBC',' Hilman Fitria');
+    user.name = encryptWithAes('AES_256_CBC',' Dyaksa Noer');
     user.email = encryptWithAes('AES_256_CBC','dyaksa@yopmail.com');
     user.address = encryptWithAes('AES_256_CBC', 'Demak');
 	user.phone = encryptWithAes('AES_256_CBC', '0899361449');
