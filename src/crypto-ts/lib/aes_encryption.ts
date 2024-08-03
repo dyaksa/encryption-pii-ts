@@ -85,92 +85,92 @@ const createDecipherivShim = (
  * @param data {string | Buffer}
  * @return {Buffer}
  */
-const decrypt = (alg: string, key: string, data: string | Buffer): string => {
-	const metaAlg = getMetaFromAlgorithm(alg);
-
-	if (key.length !== metaAlg.expectedKeyLen) {
-		throw new Error(`Invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
-	}
-
-	const keyBuf = Buffer.from(key);
-
-	// Ubah buffer numerik kembali menjadi buffer biner
-	const hexString = data.toString('utf-8');
-	const buf = Buffer.from(hexString.match(/.{1,3}/g)!.map(num => parseInt(num, 10)));
-	
-	const iv = buf.slice(0, metaAlg.ivLen);
-	const encryptedBuf = buf.slice(metaAlg.ivLen);
-
-	// Buat instance decipher
-	const decipher = createDecipheriv(alg, keyBuf, iv);
-
-	// Dekripsi data
-	const decrypted = Buffer.concat([
-		decipher.update(encryptedBuf),
-		decipher.final(),
-	]);
-
-	// Hapus padding PKCS#5 (PKCS#7)
-	const unpaddedData = keyUtil.pkcs5UnPadding(decrypted);
-
-	return unpaddedData.toString('utf-8');
-};
-
-
 // const decrypt = (alg: string, key: string, data: string | Buffer): string => {
-//     // Ensure data is a valid type
-//     if (typeof data !== 'object' && typeof data !== 'string') {
-//         throw new Error('Error: data param should be an object or string');
-//     }
+// 	const metaAlg = getMetaFromAlgorithm(alg);
 
-//     const metaAlg = getMetaFromAlgorithm(alg);
+// 	if (key.length !== metaAlg.expectedKeyLen) {
+// 		throw new Error(`Invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
+// 	}
 
-//     // Validate key length
-//     if (key.length !== metaAlg.expectedKeyLen) {
-//         throw new Error(
-//             `Invalid key length, key length should be ${metaAlg.expectedKeyLen}`,
-//         );
-//     }
+// 	const keyBuf = Buffer.from(key);
 
-//     const keyBuf = Buffer.from(key);
-//     if (keyBuf.length !== metaAlg.expectedKeyLen) {
-//         throw new Error(
-//             `Invalid key length after conversion, expected ${metaAlg.expectedKeyLen} bytes but got ${keyBuf.length} bytes`,
-//         );
-//     }
-
-//     // Convert data to a buffer if it's a string
-//     const encryptedBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data, 'hex');
-
-//     if (encryptedBuffer.length < 16) {
-//         throw new Error('Invalid encrypted data');
-//     }
-
-//     // Extract IV (first 16 bytes) and the encrypted data
-//     const iv = encryptedBuffer.slice(0, 16);
-//     const encryptedData = encryptedBuffer.slice(16);
+// 	// Ubah buffer numerik kembali menjadi buffer biner
+// 	const hexString = data.toString('utf-8');
+// 	const buf = Buffer.from(hexString.match(/.{1,3}/g)!.map(num => parseInt(num, 10)));
 	
-//     if (encryptedData.length % 16 !== 0) {
-//         throw new Error('Invalid encrypted data length');
-//     }
+// 	const iv = buf.slice(0, metaAlg.ivLen);
+// 	const encryptedBuf = buf.slice(metaAlg.ivLen);
 
-//     // Create a decipher instance
-//     const decipher = createDecipheriv(alg, keyBuf, iv);
+// 	// Buat instance decipher
+// 	const decipher = createDecipheriv(alg, keyBuf, iv);
 
-// 	console.log(encryptedData);
-
-//     // Decrypt the data
-// 	let decryptedData = Buffer.concat([
-// 		decipher.update(encryptedData),
+// 	// Dekripsi data
+// 	const decrypted = Buffer.concat([
+// 		decipher.update(encryptedBuf),
 // 		decipher.final(),
 // 	]);
 
-// 	// Remove PKCS#5 (PKCS#7) padding
-// 	decryptedData = keyUtil.pkcs5UnPadding(decryptedData);
+// 	// Hapus padding PKCS#5 (PKCS#7)
+// 	const unpaddedData = keyUtil.pkcs5UnPadding(decrypted);
 
-// 	// Convert decrypted buffer to string
-// 	return decryptedData.toString('utf-8');
+// 	return unpaddedData.toString('utf-8');
 // };
+
+
+const decrypt = (alg: string, key: string, data: string | Buffer): string => {
+    // Ensure data is a valid type
+    if (typeof data !== 'object' && typeof data !== 'string') {
+        throw new Error('Error: data param should be an object or string');
+    }
+
+    const metaAlg = getMetaFromAlgorithm(alg);
+
+    // Validate key length
+    if (key.length !== metaAlg.expectedKeyLen) {
+        throw new Error(
+            `Invalid key length, key length should be ${metaAlg.expectedKeyLen}`,
+        );
+    }
+
+    const keyBuf = Buffer.from(key);
+    if (keyBuf.length !== metaAlg.expectedKeyLen) {
+        throw new Error(
+            `Invalid key length after conversion, expected ${metaAlg.expectedKeyLen} bytes but got ${keyBuf.length} bytes`,
+        );
+    }
+
+    // Convert data to a buffer if it's a string
+    const encryptedBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data, 'hex');
+
+    if (encryptedBuffer.length < 16) {
+        throw new Error('Invalid encrypted data');
+    }
+
+    // Extract IV (first 16 bytes) and the encrypted data
+    const iv = encryptedBuffer.slice(0, 16);
+    const encryptedData = encryptedBuffer.slice(16);
+	
+    if (encryptedData.length % 16 !== 0) {
+        throw new Error('Invalid encrypted data length');
+    }
+
+    // Create a decipher instance
+    const decipher = createDecipheriv(alg, keyBuf, iv);
+
+	console.log(encryptedData);
+
+    // Decrypt the data
+	let decryptedData = Buffer.concat([
+		decipher.update(encryptedData),
+		decipher.final(),
+	]);
+
+	// Remove PKCS#5 (PKCS#7) padding
+	decryptedData = keyUtil.pkcs5UnPadding(decryptedData);
+
+	// Convert decrypted buffer to string
+	return decryptedData.toString('utf-8');
+};
 
 
 export const decryptWithAes = (type: string, data: string | Buffer): string => {
