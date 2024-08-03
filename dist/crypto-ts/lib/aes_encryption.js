@@ -33,32 +33,6 @@ const getMetaFromAlgorithm = (alg) => {
     return { expectedKeyLen: keyLenInt / 8, mode: algSplited[2], ivLen };
 };
 /**
- * Shim for difficult createCipheriv method
- *
- * @param algorithm
- * @param key
- * @param iv
- * @param options
- * @returns
- */
-const createCipherivShim = (algorithm, key, iv, options) => {
-    const cipher = (0, crypto_1.createCipheriv)(algorithm, key, iv, options);
-    return cipher;
-};
-/**
- * Shim for difficult createCipheriv method
- *
- * @param algorithm
- * @param key
- * @param iv
- * @param options
- * @returns
- */
-const createDecipherivShim = (algorithm, key, iv, options) => {
-    const cipher = (0, crypto_1.createDecipheriv)(algorithm, key, iv, options);
-    return cipher;
-};
-/**
  * @param alg {string}
  * @param key {string}
  * @param data {string | Buffer}
@@ -74,12 +48,14 @@ const decrypt = (alg, key, data) => {
     if (key.length !== metaAlg.expectedKeyLen) {
         throw new Error(`Invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
     }
-    const keyBuf = buffer_1.Buffer.from(key, 'utf8'); // Adjusted to 'utf8' for standard string keys
+    const keyBuf = buffer_1.Buffer.from(key);
     if (keyBuf.length !== metaAlg.expectedKeyLen) {
         throw new Error(`Invalid key length after conversion, expected ${metaAlg.expectedKeyLen} bytes but got ${keyBuf.length} bytes`);
     }
     // Convert data to a buffer if it's a string
-    const encryptedBuffer = buffer_1.Buffer.isBuffer(data) ? data : buffer_1.Buffer.from(data, 'hex');
+    const encryptedBufferTemp = buffer_1.Buffer.isBuffer(data) ? data : buffer_1.Buffer.from(data, 'hex');
+    const asciiEncodedString = encryptedBufferTemp.toString('ascii');
+    const encryptedBuffer = buffer_1.Buffer.from(asciiEncodedString, 'hex');
     if (encryptedBuffer.length < 16) {
         throw new Error('Invalid encrypted data');
     }
@@ -92,14 +68,14 @@ const decrypt = (alg, key, data) => {
     // Create a decipher instance
     const decipher = (0, crypto_1.createDecipheriv)(alg, keyBuf, iv);
     // Decrypt the data
-    const decryptedData = buffer_1.Buffer.concat([
+    let decryptedData = buffer_1.Buffer.concat([
         decipher.update(encryptedData),
         decipher.final(),
     ]);
     // Remove PKCS#5 (PKCS#7) padding
-    const unpaddedData = key_util_1.default.pkcs5UnPadding(decryptedData);
+    decryptedData = key_util_1.default.pkcs5UnPadding(decryptedData);
     // Convert decrypted buffer to string
-    return unpaddedData.toString('utf-8');
+    return decryptedData.toString('utf-8');
 };
 const decryptWithAes = (type, data) => {
     const key = process.env.CRYPTO_AES_KEY;
@@ -153,25 +129,28 @@ exports.decryptWithAes = decryptWithAes;
  */
 const encrypt = (alg, key, data) => {
     const metaAlg = getMetaFromAlgorithm(alg);
-    console.log(key.length, metaAlg);
+    // Validate key length
     if (key.length !== metaAlg.expectedKeyLen) {
-        throw new Error(`invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
+        throw new Error(`Invalid key length, key length should be ${metaAlg.expectedKeyLen}`);
     }
-    const plainDataPadded = key_util_1.default.pkcs5Padding(buffer_1.Buffer.from(data));
-    // Generate random IV (initialization vector)
-    const iv = buffer_1.Buffer.alloc(16); // 16 bytes for AES block size
-    key_util_1.default.generateRandIV(iv);
-    const keyB = buffer_1.Buffer.from(key);
+    const keyBuf = buffer_1.Buffer.from(key);
+    if (keyBuf.length !== metaAlg.expectedKeyLen) {
+        throw new Error(`Invalid key length after conversion, expected ${metaAlg.expectedKeyLen} bytes but got ${keyBuf.length} bytes`);
+    }
+    // Apply PKCS#5 (PKCS#7) padding
+    const paddedData = key_util_1.default.pkcs5Padding(buffer_1.Buffer.from(data.toString('hex')));
+    // Generate a random IV of 16 bytes (for AES)
+    const iv = (0, crypto_1.randomBytes)(16);
     // Create cipher instance
-    const cipher = (0, crypto_1.createCipheriv)(alg, keyB, iv);
+    const cipher = (0, crypto_1.createCipheriv)(alg, keyBuf, iv);
     // Encrypt the padded data
-    const encrypted = buffer_1.Buffer.concat([
-        cipher.update(plainDataPadded),
+    const encryptedData = buffer_1.Buffer.concat([
+        iv,
+        cipher.update(paddedData),
         cipher.final(),
     ]);
-    // Concatenate IV and encrypted data into one buffer
-    const resultBuffer = buffer_1.Buffer.concat([iv, encrypted]);
-    return resultBuffer;
+    // Return the result as a Buffer
+    return buffer_1.Buffer.from(encryptedData.toString('hex'));
 };
 const encryptWithAes = (type, data) => {
     const key = process.env.CRYPTO_AES_KEY;

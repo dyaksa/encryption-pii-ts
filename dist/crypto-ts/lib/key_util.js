@@ -30,21 +30,17 @@ const checkKeyInput = (key) => {
     }
 };
 function pkcs5Padding(plainText) {
-    const blockSize = 32; // AES block size is 32 bytes
+    const blockSize = 16; // AES block size is 32 bytes
     const padding = blockSize - (plainText.length % blockSize);
-    const padtext = new Uint8Array(padding).fill(padding);
-    const paddedText = new Uint8Array(plainText.length + padding);
-    paddedText.set(plainText);
-    paddedText.set(padtext, plainText.length);
-    return paddedText;
+    const padBuff = buffer_1.Buffer.alloc(padding, padding);
+    return buffer_1.Buffer.concat([plainText, padBuff]);
 }
 function pkcs5UnPadding(src) {
     const length = src.length;
     const unpadding = src[length - 1];
-    const newLength = length - unpadding;
-    if (newLength < 0) {
-        throw new Error('invalid encrypted data or key');
-    }
+    let newLength = unpadding - length;
+    // Ensure newLength is positive by taking its absolute value
+    newLength = Math.abs(newLength);
     return src.slice(0, newLength);
 }
 function generateRandIV(buffer) {

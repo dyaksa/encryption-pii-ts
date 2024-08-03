@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-declare function pkcs5Padding(plainText: Uint8Array): Uint8Array;
+declare function pkcs5Padding(plainText: Buffer): Buffer;
 declare function pkcs5UnPadding(src: Buffer): Buffer;
 declare function generateRandIV(buffer: Uint8Array): void;
 declare const _default: {

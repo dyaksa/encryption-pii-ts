@@ -2,7 +2,6 @@
 // index.ts
 import CryptoTs from '../index';
 import { User } from './entity/user_entity';
-import { encryptWithAes } from '../crypto-ts/lib/aes_encryption';
 import { dt_conf } from '../crypto-ts/lib/config';
 
 // Example usage
@@ -11,12 +10,12 @@ const main = async () => {
 	const dt = await dt_conf();
 
 	const user = new User();
-    user.name = encryptWithAes('AES_256_CBC',' Dyaksa Noer');
-    user.email = encryptWithAes('AES_256_CBC','dyaksa@yopmail.com');
-    user.address = encryptWithAes('AES_256_CBC', 'Demak');
-	user.phone = encryptWithAes('AES_256_CBC', '0899361449');
-    user.nik = encryptWithAes('AES_256_CBC', '3215012506200001');
-    user.npwp = encryptWithAes('AES_256_CBC', '311501230697000');
+    user.name = CryptoTs.encryptWithAes('AES_256_CBC',' Dyaksa Noer Djauharudin');
+    user.email = CryptoTs.encryptWithAes('AES_256_CBC','dyaksa@yopmail.com');
+    user.address = CryptoTs.encryptWithAes('AES_256_CBC', 'Demak');
+	user.phone = CryptoTs.encryptWithAes('AES_256_CBC', '0899361449');
+    user.nik = CryptoTs.encryptWithAes('AES_256_CBC', '3215012506200001');
+    user.npwp = CryptoTs.encryptWithAes('AES_256_CBC', '311501230697000');
     user.age = 25;
     user.password = 'uhuyuhuy';
 

@@ -5,8 +5,6 @@ export declare class Profile {
     name_bidx: string;
     email: AesCipher;
     email_bidx: string;
-    address: AesCipher;
-    address_bidx: string;
-    age: number | null;
-    password: string;
+    phone: Buffer;
+    phone_bidx: string;
 }

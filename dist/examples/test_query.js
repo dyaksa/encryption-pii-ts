@@ -12,20 +12,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // index.ts
 const index_1 = require("../index");
 const user_entity_1 = require("./entity/user_entity");
-const aes_encryption_1 = require("../crypto-ts/lib/aes_encryption");
 const config_1 = require("../crypto-ts/lib/config");
 // Example usage
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const dt = yield (0, config_1.dt_conf)();
     const user = new user_entity_1.User();
-    user.name = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'Mohamad Ali Farhan');
-    user.email = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'ali.farhan@yopmail.com');
-    user.address = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', 'address yang rahasia');
-    user.phone = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '0899361349');
-    user.nik = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '3215012506200007');
-    user.npwp = (0, aes_encryption_1.encryptWithAes)('AES_256_CBC', '311501230697000');
+    user.name = index_1.default.encryptWithAes('AES_256_CBC', ' Dyaksa Noer Djauharudin');
+    user.email = index_1.default.encryptWithAes('AES_256_CBC', 'dyaksa@yopmail.com');
+    user.address = index_1.default.encryptWithAes('AES_256_CBC', 'Demak');
+    user.phone = index_1.default.encryptWithAes('AES_256_CBC', '0899361449');
+    user.nik = index_1.default.encryptWithAes('AES_256_CBC', '3215012506200001');
+    user.npwp = index_1.default.encryptWithAes('AES_256_CBC', '311501230697000');
     user.age = 25;
-    user.password = 'securepassword';
+    user.password = 'uhuyuhuy';
     const blindIdx = yield index_1.default.buildBlindIndex(user);
     // Create an SQL query for insertion
     const query = `

@@ -46,26 +46,15 @@ __decorate([
 ], Profile.prototype, "email_bidx", void 0);
 __decorate([
     (0, typeorm_1.Column)('bytea'),
-    index_1.default.DBColumn('address'),
-    index_1.default.BidxCol('address_bidx'),
-    index_1.default.TxtHeapTable('address_text_heap'),
-    __metadata("design:type", types_1.AesCipher)
-], Profile.prototype, "address", void 0);
+    index_1.default.DBColumn('phone'),
+    index_1.default.BidxCol('phone_bidx'),
+    index_1.default.TxtHeapTable('phone_text_heap'),
+    __metadata("design:type", Buffer)
+], Profile.prototype, "phone", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Profile.prototype, "address_bidx", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'int', nullable: true, default: 0 }) // Define 'age' column as nullable
-    ,
-    index_1.default.DBColumn('age'),
-    __metadata("design:type", Number)
-], Profile.prototype, "age", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    index_1.default.DBColumn('password'),
-    __metadata("design:type", String)
-], Profile.prototype, "password", void 0);
+], Profile.prototype, "phone_bidx", void 0);
 exports.Profile = Profile = __decorate([
     (0, typeorm_1.Entity)('profile')
 ], Profile);

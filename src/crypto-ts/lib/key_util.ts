@@ -34,28 +34,20 @@ const checkKeyInput = (key: any): void | Error => {
 	}
 };
 
-function pkcs5Padding(plainText: Uint8Array): Uint8Array {
-	const blockSize = 32; // AES block size is 32 bytes
+function pkcs5Padding(plainText: Buffer): Buffer {
+	const blockSize = 16; // AES block size is 32 bytes
 	const padding = blockSize - (plainText.length % blockSize);
-	const padtext = new Uint8Array(padding).fill(padding);
-	const paddedText = new Uint8Array(plainText.length + padding);
-
-	paddedText.set(plainText);
-	paddedText.set(padtext, plainText.length);
-
-	return paddedText;
+	const padBuff = Buffer.alloc(padding, padding);
+	return Buffer.concat([plainText, padBuff]);
 }
 
 function pkcs5UnPadding(src: Buffer): Buffer {
 	const length = src.length;
 	const unpadding = src[length - 1];
-	const newLength = length - unpadding;
+	let newLength = unpadding - length;
 
-	console.log("newLength", newLength);
-
-	if (newLength < 0) {
-		throw new Error('invalid encrypted data or key');
-	}
+	// Ensure newLength is positive by taking its absolute value
+	newLength = Math.abs(newLength);
 
 	return src.slice(0, newLength);
 }

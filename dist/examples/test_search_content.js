@@ -13,7 +13,7 @@ const index_1 = require("../index");
 function exampleGetHeapsByContent() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const inputValue = "Ali";
+            const inputValue = "Dy";
             const result = yield index_1.default.searchContents('name_text_heap', { content: inputValue });
             console.log('Result:', result);
         }
