@@ -4,7 +4,7 @@ import algorithms from './alg';
 import keyUtil from './key_util';
 import * as dotenv from 'dotenv';
 import { AesCipher } from './types';
-import { Console } from 'console';
+import * as cryptoJs from 'crypto-js';
 
 const DEFAULT_AUTH_TAG_LENGTH = 16;
 const SUPPORTED_AUTH_TAG_MODES = ['gcm', 'ccm', 'ocb', 'chacha20-poly1305'];
@@ -77,105 +77,28 @@ const createDecipherivShim = (
  * @return {Buffer}
  */
 const decrypt = (alg: string, key: string, data: string | Buffer): string => {
-	// Ensure data is a valid type
-	if (typeof data !== 'object' && typeof data !== 'string') {
-		throw new Error('Error: data param should be an object or string');
-	}
+	const encryptedBuffer =
+		typeof data === 'string' ? Buffer.from(data, 'hex') : data;
+	const keyHex = cryptoJs.enc.Hex.parse(key);
+	const iv = encryptedBuffer.slice(0, 16);
+	const cipherText = encryptedBuffer.slice(16);
 
-	const metaAlg = getMetaFromAlgorithm(alg);
+	const ivWordArray = keyUtil.bufferToWordArray(iv);
+	const ciphertextWordArray = keyUtil.bufferToWordArray(cipherText);
 
-	// Validate key length
-	if (key.length !== metaAlg.expectedKeyLen) {
-		throw new Error(
-			`Invalid key length, key length should be ${metaAlg.expectedKeyLen}`,
-		);
-	}
+	const decrypted = cryptoJs.AES.decrypt(
+		{ ciphertext: ciphertextWordArray } as any,
+		keyHex,
+		{
+			iv: ivWordArray,
+			mode: cryptoJs.mode.CBC,
+			padding: cryptoJs.pad.NoPadding,
+		},
+	);
 
-	const keyBuf = Buffer.from(key);
+	const decryptedUnpadded = keyUtil.PKCS5UnPadding(decrypted);
 
-	const decodedBuffer = Buffer.from(data.toString('hex'));
-	const decodedLen = decodedBuffer.length / 2;
-	const encryptedDataOut = new Uint8Array(decodedLen);
-	let encryptedDataOutN = 0;
-
-	for (let i = 0; i < decodedBuffer.length; i += 2) {
-		encryptedDataOut[i / 2] = parseInt(
-			data.toString('hex').substr(i, 2),
-			16,
-		);
-	}
-	encryptedDataOutN = encryptedDataOut.length;
-
-	if (encryptedDataOut.length < 16) {
-		throw new Error('Invalid encrypted data');
-	}
-
-	const cipherDataBytes = encryptedDataOut.slice(16, encryptedDataOutN);
-
-	if (cipherDataBytes.length % 16 !== 0) {
-		throw new Error('Invalid encrypted data');
-	}
-
-	const nonceBytes = encryptedDataOut.slice(0, 16);
-	console.log('Key:', keyBuf);
-	console.log('IV:', nonceBytes);
-	console.log('Cipher Data Bytes:', cipherDataBytes);
-
-	const decipher = createDecipheriv('aes-256-cbc', keyBuf, nonceBytes);
-
-	const decryptedData = Buffer.concat([
-		decipher.update(Buffer.from(cipherDataBytes)),
-		decipher.final(),
-	]);
-
-	console.log(decryptedData);
-
-	// const decryptedData = Buffer.concat([
-	// 	decipher.update(Buffer.from(cipherDataBytes)),
-	// 	decipher.final(),
-	// ]);
-
-	// console.log(decryptedData);
-
-	// const buff = keyUtil.pkcs5UnPadding(decryptedData);
-
-	// console.log(buff);
-
-	return '';
-
-	// const cipherOptions = {
-	// 	authTagLength: DEFAULT_AUTH_TAG_LENGTH,
-	// };
-
-	// // Convert data to a buffer
-	// const buf = Buffer.from(data.toString('hex'), 'hex');
-	// const nonceBuf = buf.subarray(0, metaAlg.ivLen);
-
-	// // Create decipher instance
-	// const decipher = createDecipherivShim(alg, keyBuf, nonceBuf, cipherOptions);
-
-	// let encryptedBuf;
-
-	// // Handle authentication tag if necessary
-	// if (SUPPORTED_AUTH_TAG_MODES.includes(metaAlg.mode)) {
-	// 	const sFrom = buf.length - DEFAULT_AUTH_TAG_LENGTH;
-	// 	const authTagUtf8 = buf.subarray(sFrom, buf.length);
-	// 	decipher.setAuthTag(authTagUtf8);
-	// 	encryptedBuf = buf.subarray(metaAlg.ivLen, sFrom);
-	// } else {
-	// 	encryptedBuf = buf.subarray(metaAlg.ivLen, buf.length);
-	// }
-
-	// // Perform decryption
-	// let decrypted = decipher.update(encryptedBuf);
-	// let remaining = decipher.final();
-
-	// // Concatenate decrypted buffers
-	// const resultBuffer = Buffer.concat(
-	// 	[decrypted, remaining],
-	// 	decrypted.length + remaining.length,
-	// );
-	// return resultBuffer.toString();
+	return cryptoJs.enc.Utf8.stringify(decryptedUnpadded);
 };
 
 export const decryptWithAes = (type: string, data: string | Buffer): string => {
@@ -237,28 +160,22 @@ const encrypt = (alg: string, key: string, data: string | Buffer): Buffer => {
 		);
 	}
 
-	const plainDataPadded = keyUtil.pkcs5Padding(Buffer.from(data));
+	const keyHex = cryptoJs.enc.Hex.parse(key);
+	const plainDataPadded = keyUtil.PKCS5Padding(data.toString());
+	const iv = keyUtil.generateRandIV(16);
 
-	const cipherDataBytes = new Uint8Array(plainDataPadded.length + 16);
+	const encrypted = cryptoJs.AES.encrypt(plainDataPadded, keyHex, {
+		iv: iv,
+		mode: cryptoJs.mode.CBC,
+		padding: cryptoJs.pad.NoPadding,
+	});
 
-	keyUtil.generateRandIV(cipherDataBytes.subarray(0, 16));
+	const ivBuffer = keyUtil.wordArrayToBuffer(iv);
+	const cipherBuffer = keyUtil.wordArrayToBuffer(encrypted.ciphertext);
 
-	const keyB = Buffer.from(key);
+	const cipherDataBytes = Buffer.concat([ivBuffer, cipherBuffer]);
 
-	const cipher = createCipheriv(
-		'aes-256-cbc',
-		keyB,
-		cipherDataBytes.subarray(0, 16),
-	);
-
-	const encrypted = Buffer.concat([
-		cipher.update(plainDataPadded),
-		cipher.final(),
-	]);
-
-	encrypted.copy(cipherDataBytes, 16);
-
-	return encrypted;
+	return cipherDataBytes;
 };
 
 export const encryptWithAes = (type: string, data: string | Buffer): any => {
