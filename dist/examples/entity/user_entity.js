@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
+// entity.ts
 const index_1 = require("../../index");
 const typeorm_1 = require("typeorm");
 let User = class User {

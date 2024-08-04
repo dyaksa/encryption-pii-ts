@@ -11,12 +11,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.dt_conf = void 0;
 const typeorm_1 = require("typeorm");
+const dotenv = require("dotenv");
 const dt_conf = () => __awaiter(void 0, void 0, void 0, function* () {
+    dotenv.config();
     try {
         const dt = new typeorm_1.DataSource({
             type: 'postgres',
             host: process.env.DB_AUTH_HOST || 'localhost',
-            port: parseInt(process.env.DB_AUTH_PORT || '35432', 10),
+            port: parseInt(process.env.DB_AUTH_PORT || '5433', 10),
             username: process.env.DB_AUTH_USERNAME || '',
             password: process.env.DB_AUTH_PASSWORD || '',
             database: process.env.DB_AUTH_DATABASE || '',

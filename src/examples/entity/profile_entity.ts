@@ -27,21 +27,14 @@ export class Profile {
     @Column()
     email_bidx: string;
 
-    @Column('bytea')
-    @CryptoTs.DBColumn('address')
-    @CryptoTs.BidxCol('address_bidx')
-    @CryptoTs.TxtHeapTable('address_text_heap')
-    address: AesCipher;
+
+	@Column('bytea')
+    @CryptoTs.DBColumn('phone')
+    @CryptoTs.BidxCol('phone_bidx')
+    @CryptoTs.TxtHeapTable('phone_text_heap')
+    phone: Buffer;
 
     @Column()
-    address_bidx: string;
-
-    @Column({ type: 'int', nullable: true, default: 0 }) // Define 'age' column as nullable
-    @CryptoTs.DBColumn('age')
-    age: number | null; // Adjust the type to accept null values
-
-    @Column()
-    @CryptoTs.DBColumn('password')
-    password: string;
+    phone_bidx: string;
 }
 

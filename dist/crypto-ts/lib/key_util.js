@@ -29,14 +29,39 @@ const checkKeyInput = (key) => {
         throw new Error(`key cannot be less than ${MIN_CUSTOM_KEY_LEN}`);
     }
 };
+function pkcs5Padding(plainText) {
+    const blockSize = 16; // AES block size is 32 bytes
+    const padding = blockSize - (plainText.length % blockSize);
+    const padBuff = buffer_1.Buffer.alloc(padding, padding);
+    return buffer_1.Buffer.concat([plainText, padBuff]);
+}
+function pkcs5UnPadding(src) {
+    const length = src.length;
+    const unpadding = src[length - 1];
+    let newLength = unpadding - length;
+    // Ensure newLength is positive by taking its absolute value
+    newLength = Math.abs(newLength);
+    return src.slice(0, newLength);
+}
+function generateRandIV(buffer) {
+    try {
+        (0, crypto_1.randomFillSync)(buffer);
+    }
+    catch (err) {
+        throw new Error(`Failed to generate random IV: ${err.message}`);
+    }
+}
 exports.default = {
     checkKeyInput,
     generateRandomIV,
+    generateRandIV,
+    pkcs5Padding,
+    pkcs5UnPadding,
     KEY_SIZE_1KB,
     KEY_SIZE_2KB,
     KEY_SIZE_4KB,
     HMAC_MINIMUM_KEY_SIZE,
     AES_128_KEY_SIZE,
     AES_192_KEY_SIZE,
-    AES_256_KEY_SIZE
+    AES_256_KEY_SIZE,
 };
