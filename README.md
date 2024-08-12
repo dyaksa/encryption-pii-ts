@@ -28,16 +28,7 @@
 	DB_AUTH_DATABASE=db_name
     ```
 
-## Installation this project
-
-1. Run `npm` or `yarn` to install:
-	```
-	npm install
-	```
-
 ## Usage Examples
-
-
 ### Create Table Text Heap in Your DB
 
 ```sql
