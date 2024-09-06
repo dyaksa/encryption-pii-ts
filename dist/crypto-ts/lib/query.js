@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildBlindIndex = exports.searchContents = exports.saveToHeap = exports.buildHeap = exports.validateEmail = exports.getLast8Characters = exports.split = void 0;
+exports.buildBlindIndex = exports.searchContentFullText = exports.searchContents = exports.saveToHeap = exports.buildHeap = exports.validateEmail = exports.getLast8Characters = exports.split = void 0;
 const hmac_1 = require("./hmac");
 const types_1 = require("./types");
 require("reflect-metadata");
@@ -128,6 +128,25 @@ const searchContents = (table, args) => __awaiter(void 0, void 0, void 0, functi
     }));
 });
 exports.searchContents = searchContents;
+// SearchContentFullText
+const searchContentFullText = (table, args) => __awaiter(void 0, void 0, void 0, function* () {
+    const dt = yield (0, config_1.dt_conf)();
+    const query = `SELECT id, content, hash FROM ${table} WHERE content = ANY($1::text[])`;
+    const parameters = [args.contents];
+    try {
+        const result = yield dt.query(query, parameters);
+        return result.map((row) => ({
+            id: row.id,
+            content: row.content,
+            hash: row.hash,
+        }));
+    }
+    catch (error) {
+        console.error('Error executing searchContentFullText:', error);
+        throw error;
+    }
+});
+exports.searchContentFullText = searchContentFullText;
 // buildBlindIndex
 const buildBlindIndex = (entity) => __awaiter(void 0, void 0, void 0, function* () {
     const th = [];

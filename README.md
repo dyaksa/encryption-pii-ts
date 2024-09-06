@@ -8,6 +8,8 @@
 - [x] `TxtHeapTable`
 - [x] `buildBlindIndex`
 - [x] `searchContents`
+- [x] `searchContentFullText`
+- [x] `AesCipher`
 
 ## Installation this package to your project
 
@@ -199,6 +201,23 @@ async function exampleGetHeapsByContent() {
 }
 
 exampleGetHeapsByContent();
+```
+
+### Test Search Full Content
+
+```typescript
+import CryptoTs from '../index';
+
+async function exampleGetHeapsByFullContent() {
+	try {
+        const result = await CryptoTs.searchContentFullText('name_text_heap', { contents: ['maya', 'sri', 'hilman']});
+        console.log('Result:', result);
+    } catch (error) {
+        console.error('Error fetching heaps by content:', error);
+    }
+}
+
+exampleGetHeapsByFullContent();
 ```
 
 ### Test Encrypt and Decrypt

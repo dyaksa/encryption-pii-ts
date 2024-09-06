@@ -1,6 +1,9 @@
 export interface FindTextHeapByContentParams {
     content: string;
 }
+export interface FindTextHeapByFullTextParams {
+    contents: string[];
+}
 export interface FindTextHeapByHashParams {
     hash: string;
 }

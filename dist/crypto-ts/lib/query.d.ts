@@ -1,4 +1,4 @@
-import { FindTextHeapByContentParams, FindTextHeapRow, TextHeap } from './types';
+import { FindTextHeapByContentParams, FindTextHeapByFullTextParams, FindTextHeapRow, TextHeap } from './types';
 import 'reflect-metadata';
 export declare const split: (value: string) => string[];
 export declare const getLast8Characters: (input: string) => string;
@@ -9,4 +9,5 @@ export declare const buildHeap: (value: string, typeHeap: string) => {
 };
 export declare const saveToHeap: (textHeaps: TextHeap[]) => Promise<void>;
 export declare const searchContents: (table: string, args: FindTextHeapByContentParams) => Promise<FindTextHeapRow[]>;
+export declare const searchContentFullText: (table: string, args: FindTextHeapByFullTextParams) => Promise<FindTextHeapRow[]>;
 export declare const buildBlindIndex: (entity: any) => Promise<any>;

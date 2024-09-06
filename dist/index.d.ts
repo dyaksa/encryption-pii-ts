@@ -8,6 +8,7 @@ declare const CryptoTs: {
     decryptWithAes: (type: string, data: string | Buffer) => string;
     buildBlindIndex: (entity: any) => Promise<any>;
     searchContents: (table: string, args: import("./crypto-ts/lib/types").FindTextHeapByContentParams) => Promise<import("./crypto-ts/lib/types").FindTextHeapRow[]>;
+    searchContentFullText: (table: string, args: import("./crypto-ts/lib/types").FindTextHeapByFullTextParams) => Promise<import("./crypto-ts/lib/types").FindTextHeapRow[]>;
     AesCipher: typeof AesCipher;
 };
 export default CryptoTs;

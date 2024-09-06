@@ -1,5 +1,5 @@
 import { commonGenerateDigest } from './hmac';
-import { AesCipher, FindTextHeapByContentParams, FindTextHeapRow, TextHeap } from './types';
+import { AesCipher, FindTextHeapByContentParams, FindTextHeapByFullTextParams, FindTextHeapRow, TextHeap } from './types';
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
@@ -135,6 +135,30 @@ export const searchContents = async (
 		content: row.content,
 		hash: row.hash,
 	}));
+};
+
+// SearchContentFullText
+export const searchContentFullText = async (
+	table: string,
+	args: FindTextHeapByFullTextParams
+): Promise<FindTextHeapRow[]> => {
+	const dt = await dt_conf()
+	const query = `SELECT id, content, hash FROM ${table} WHERE content = ANY($1::text[])`;
+	
+	const parameters = [args.contents];
+	
+	try {
+		const result = await dt.query(query, parameters);
+		
+		return result.map((row: any) => ({
+			id: row.id,
+			content: row.content,
+			hash: row.hash,
+		}));
+	} catch (error) {
+		console.error('Error executing searchContentFullText:', error);
+		throw error;
+	}
 };
 
 // buildBlindIndex

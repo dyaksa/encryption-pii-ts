@@ -12,6 +12,7 @@ const CryptoTs = {
     decryptWithAes: aes_encryption_1.decryptWithAes,
     buildBlindIndex: query_1.buildBlindIndex,
     searchContents: query_1.searchContents,
+    searchContentFullText: query_1.searchContentFullText,
     AesCipher: types_1.AesCipher
 };
 exports.default = CryptoTs;
