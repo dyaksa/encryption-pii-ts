@@ -13,7 +13,7 @@ const index_1 = require("../index");
 function exampleGetHeapsByFullContent() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const result = yield index_1.default.searchContentFullText('name_text_heap', { contents: ['maya', 'sri', 'hilman'] });
+            const result = yield index_1.default.searchContentFullText('name_text_heap', { contents: ['ali', 'farhan', 'sri'] });
             console.log('Result:', result);
         }
         catch (error) {

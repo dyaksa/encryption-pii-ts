@@ -142,24 +142,31 @@ export const searchContentFullText = async (
 	table: string,
 	args: FindTextHeapByFullTextParams
 ): Promise<FindTextHeapRow[]> => {
-	const dt = await dt_conf()
+	const dt = await dt_conf();
 	const query = `SELECT id, content, hash FROM ${table} WHERE content = ANY($1::text[])`;
-	
 	const parameters = [args.contents];
-	
+
 	try {
 		const result = await dt.query(query, parameters);
-		
-		return result.map((row: any) => ({
-			id: row.id,
-			content: row.content,
-			hash: row.hash,
-		}));
+
+		const sortedResult = args.contents.map(content => {
+			const row = result.find((row: any) => row.content === content);
+			return row
+				? {
+					id: row.id,
+					content: row.content,
+					hash: row.hash,
+				}
+				: null; 
+		}).filter(Boolean);
+
+		return sortedResult;
 	} catch (error) {
 		console.error('Error executing searchContentFullText:', error);
 		throw error;
 	}
 };
+
 
 // buildBlindIndex
 export const buildBlindIndex = async (

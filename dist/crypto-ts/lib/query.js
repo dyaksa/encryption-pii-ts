@@ -135,11 +135,17 @@ const searchContentFullText = (table, args) => __awaiter(void 0, void 0, void 0,
     const parameters = [args.contents];
     try {
         const result = yield dt.query(query, parameters);
-        return result.map((row) => ({
-            id: row.id,
-            content: row.content,
-            hash: row.hash,
-        }));
+        const sortedResult = args.contents.map(content => {
+            const row = result.find((row) => row.content === content);
+            return row
+                ? {
+                    id: row.id,
+                    content: row.content,
+                    hash: row.hash,
+                }
+                : null;
+        }).filter(Boolean);
+        return sortedResult;
     }
     catch (error) {
         console.error('Error executing searchContentFullText:', error);
