@@ -2,7 +2,6 @@ import { commonGenerateDigest } from './hmac';
 import { AesCipher, FindTextHeapByContentParams, FindTextHeapByFullTextParams, FindTextHeapRow, TextHeap } from './types';
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
-import { DataSource } from 'typeorm';
 import { isValidPhone, parsePhone, phoneToString } from '../validate/phone';
 import { isValidNIK, nikToString, parseNIK } from '../validate/nik';
 import { isValidNPWP, npwpToString, parseNPWP } from '../validate/npwp';
