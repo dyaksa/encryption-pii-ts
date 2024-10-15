@@ -69,10 +69,11 @@ const buildHeap = (value, typeHeap) => {
     const builder = new Set();
     const heaps = [];
     values.forEach(val => {
-        const hash = (0, hmac_1.commonGenerateDigest)('SHA256', val);
+        const valToLower = val.toLocaleLowerCase();
+        const hash = (0, hmac_1.commonGenerateDigest)('SHA256', valToLower);
         const hash8LastChar = (0, exports.getLast8Characters)(hash);
         builder.add(hash8LastChar);
-        heaps.push({ content: val.toLowerCase(), type: typeHeap, hash: hash8LastChar });
+        heaps.push({ content: valToLower, type: typeHeap, hash: hash8LastChar });
     });
     return { str: Array.from(builder).join(''), heaps };
 };

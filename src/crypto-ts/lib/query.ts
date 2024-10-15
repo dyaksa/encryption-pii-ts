@@ -62,10 +62,11 @@ export const buildHeap = (value: string, typeHeap: string): { str: string; heaps
 	const heaps: TextHeap[] = [];
 
 	values.forEach(val => {
-		const hash = commonGenerateDigest('SHA256', val);
+		const valToLower = val.toLocaleLowerCase()
+		const hash = commonGenerateDigest('SHA256', valToLower);
 		const hash8LastChar = getLast8Characters(hash);
 		builder.add(hash8LastChar);
-		heaps.push({ content: val.toLowerCase(), type: typeHeap, hash: hash8LastChar });
+		heaps.push({ content: valToLower, type: typeHeap, hash: hash8LastChar });
 	});
 
 	return { str: Array.from(builder).join(''), heaps };

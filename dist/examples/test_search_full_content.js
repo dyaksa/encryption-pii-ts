@@ -13,7 +13,9 @@ const index_1 = require("../index");
 function exampleGetHeapsByFullContent() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const result = yield index_1.default.searchContentFullText('name_text_heap', { contents: ['ali', 'farhan', 'sri'] });
+            const inputValue = "ali.farhan160@yopmail.com";
+            const splitValue = index_1.default.split(inputValue);
+            const result = yield index_1.default.searchContentFullText('email_text_heap', { contents: splitValue });
             console.log('Result:', result);
         }
         catch (error) {
