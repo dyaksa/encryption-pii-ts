@@ -18,7 +18,7 @@ const IV_SIZE = 12;
  * @param size {number}
  * @return {string}
  */
-const generateRandomIV = (size: number = IV_SIZE): string => {
+const generateRandomIV = (size: number = IV_SIZE): any => {
 	const buf = Buffer.alloc(size);
 	return randomFillSync(buf).toString('hex');
 };
@@ -52,18 +52,10 @@ function pkcs5UnPadding(src: Buffer): Buffer {
 	return src.slice(0, newLength);
 }
 
-function generateRandIV(buffer: Uint8Array): void {
-	try {
-		randomFillSync(buffer);
-	} catch (err) {
-		throw new Error(`Failed to generate random IV: ${err.message}`);
-	}
-}
 
 export default {
 	checkKeyInput,
 	generateRandomIV,
-	generateRandIV,
 	pkcs5Padding,
 	pkcs5UnPadding,
 	KEY_SIZE_1KB,

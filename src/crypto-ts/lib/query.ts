@@ -127,7 +127,7 @@ export const searchContents = async (
 ): Promise<FindTextHeapRow[]> => {
 	const dt = await dt_conf()
 	const query = `SELECT id, content, hash FROM ${table} WHERE content ILIKE '%' || $1 || '%'`;
-	const parameters = [args.content];
+	const parameters = [ args.content.toLowerCase() ];
 	const result = await dt.query(query, parameters);
 
 	return result.map((row: any) => ({
@@ -143,15 +143,16 @@ export const searchContentFullText = async (
 	args: FindTextHeapByFullTextParams
 ): Promise<FindTextHeapRow[]> => {
 	const dt = await dt_conf();
+	const lowerCaseContents = args.contents.map((content: string) => content.toLowerCase());
 	const query = `SELECT id, content, hash FROM ${table} WHERE content = ANY($1::text[])`;
-	const parameters = [args.contents];
+	const parameters = [ lowerCaseContents ];
 
 	try {
 		const result = await dt.query(query, parameters);
 
 		const sortedResult = args.contents.map(content => {
-			const row = result.find((row: any) => row.content === content);
-			return row
+		const row = result.find((row: any) => row.content.toLowerCase() === content.toLowerCase());
+		return row
 				? {
 					id: row.id,
 					content: row.content,

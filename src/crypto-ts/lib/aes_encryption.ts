@@ -179,14 +179,15 @@ const encrypt = (alg: string, key: string, data: string | Buffer): Buffer => {
     const paddedData = keyUtil.pkcs5Padding(Buffer.from(data.toString('hex')));
 
     // Generate a random IV of 16 bytes (for AES)
-    const iv = randomBytes(16);
+    const iv = keyUtil.generateRandomIV(metaAlg.ivLen);
+	const ivBuf = Buffer.from(iv, 'hex');
 
     // Create cipher instance
-    const cipher = createCipheriv(alg, keyBuf, iv);
+    const cipher = createCipheriv(alg, keyBuf, ivBuf);
 
     // Encrypt the padded data
     const encryptedData = Buffer.concat([
-        iv,
+        ivBuf,
 		cipher.update(paddedData),
         cipher.final(),
     ]);

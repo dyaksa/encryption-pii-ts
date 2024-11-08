@@ -1,15 +1,15 @@
 import CryptoTs from '../index';
 
-const data = 'Mohamad Ali Farhan';
+const data = 'TEST-PARTNER';
 
 // Encrypt
 const encryptedHex = CryptoTs.encryptWithAes('AES_256_CBC', data);
-console.log('Encrypted Data (Hex):', encryptedHex);
+console.log('Encrypted Data (Hex):', encryptedHex.Value.toString());
 
-// Decrypt
+// // Decrypt
 const decryptedData = CryptoTs.decryptWithAes(
 	'AES_256_CBC',
-	Buffer.from('')
+	encryptedHex.Value
 );
 console.log('Decrypt Data:', decryptedData);
 

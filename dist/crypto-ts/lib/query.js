@@ -120,7 +120,7 @@ exports.saveToHeap = saveToHeap;
 const searchContents = (table, args) => __awaiter(void 0, void 0, void 0, function* () {
     const dt = yield (0, config_1.dt_conf)();
     const query = `SELECT id, content, hash FROM ${table} WHERE content ILIKE '%' || $1 || '%'`;
-    const parameters = [args.content];
+    const parameters = [args.content.toLowerCase()];
     const result = yield dt.query(query, parameters);
     return result.map((row) => ({
         id: row.id,
@@ -132,12 +132,13 @@ exports.searchContents = searchContents;
 // SearchContentFullText
 const searchContentFullText = (table, args) => __awaiter(void 0, void 0, void 0, function* () {
     const dt = yield (0, config_1.dt_conf)();
+    const lowerCaseContents = args.contents.map((content) => content.toLowerCase());
     const query = `SELECT id, content, hash FROM ${table} WHERE content = ANY($1::text[])`;
-    const parameters = [args.contents];
+    const parameters = [lowerCaseContents];
     try {
         const result = yield dt.query(query, parameters);
         const sortedResult = args.contents.map(content => {
-            const row = result.find((row) => row.content === content);
+            const row = result.find((row) => row.content.toLowerCase() === content.toLowerCase());
             return row
                 ? {
                     id: row.id,

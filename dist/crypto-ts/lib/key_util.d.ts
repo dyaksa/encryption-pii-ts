@@ -1,11 +1,9 @@
 import { Buffer } from 'buffer';
 declare function pkcs5Padding(plainText: Buffer): Buffer;
 declare function pkcs5UnPadding(src: Buffer): Buffer;
-declare function generateRandIV(buffer: Uint8Array): void;
 declare const _default: {
     checkKeyInput: (key: any) => void | Error;
-    generateRandomIV: (size?: number) => string;
-    generateRandIV: typeof generateRandIV;
+    generateRandomIV: (size?: number) => any;
     pkcs5Padding: typeof pkcs5Padding;
     pkcs5UnPadding: typeof pkcs5UnPadding;
     KEY_SIZE_1KB: number;
