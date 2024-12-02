@@ -14,9 +14,6 @@ const hmac_1 = require("./hmac");
 const types_1 = require("./types");
 require("reflect-metadata");
 const dotenv = require("dotenv");
-const phone_1 = require("../validate/phone");
-const nik_1 = require("../validate/nik");
-const npwp_1 = require("../validate/npwp");
 const config_1 = require("./config");
 dotenv.config();
 const getMetadata = (entity, key, metaKey) => {
@@ -26,25 +23,7 @@ const split = (value) => {
     let sep = ' ';
     const reg = '[a-zA-Z0-9]+';
     const regex = new RegExp(reg, 'g');
-    if ((0, phone_1.isValidPhone)(value)) {
-        const parsedPhone = (0, phone_1.parsePhone)(value);
-        const phoneStr = (0, phone_1.phoneToString)(parsedPhone);
-        sep = '-';
-        value = phoneStr;
-    }
-    else if ((0, nik_1.isValidNIK)(value)) {
-        const parseNik = (0, nik_1.parseNIK)(value);
-        const nikStr = (0, nik_1.nikToString)(parseNik);
-        sep = '.';
-        value = nikStr;
-    }
-    else if ((0, npwp_1.isValidNPWP)(value)) {
-        const parseNpwp = (0, npwp_1.parseNPWP)(value);
-        const npwpStr = (0, npwp_1.npwpToString)(parseNpwp);
-        sep = '.';
-        value = npwpStr;
-    }
-    else if ((0, exports.validateEmail)(value)) {
+    if ((0, exports.validateEmail)(value)) {
         sep = '@';
     }
     const parts = value.split(sep);

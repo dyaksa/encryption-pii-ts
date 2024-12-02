@@ -2,9 +2,6 @@ import { commonGenerateDigest } from './hmac';
 import { AesCipher, FindTextHeapByContentParams, FindTextHeapByFullTextParams, FindTextHeapRow, TextHeap } from './types';
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
-import { isValidPhone, parsePhone, phoneToString } from '../validate/phone';
-import { isValidNIK, nikToString, parseNIK } from '../validate/nik';
-import { isValidNPWP, npwpToString, parseNPWP } from '../validate/npwp';
 import { dt_conf } from './config';
 
 dotenv.config();
@@ -18,23 +15,7 @@ export const split = (value: string): string[] => {
 	const reg = '[a-zA-Z0-9]+';
 	const regex = new RegExp(reg, 'g');
 
-
-	if (isValidPhone(value)) {
-		const parsedPhone = parsePhone(value);
-		const phoneStr = phoneToString(parsedPhone);
-		sep = '-';
-		value = phoneStr; 
-    } else if (isValidNIK(value)) {
-		const parseNik = parseNIK(value);
-		const nikStr = nikToString(parseNik);
-		sep = '.';
-		value = nikStr; 
-	} else if (isValidNPWP(value)) {
-		const parseNpwp = parseNPWP(value);
-		const npwpStr = npwpToString(parseNpwp);
-		sep = '.';
-		value = npwpStr; 
-	} else if (validateEmail(value)) {
+	if (validateEmail(value)) {
         sep = '@';
     }
 
