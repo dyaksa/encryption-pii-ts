@@ -8,6 +8,9 @@
 - [x] `TxtHeapTable`
 - [x] `buildBlindIndex`
 - [x] `searchContents`
+- [x] `searchContentFullText`
+- [x] `split`
+- [x] `AesCipher`
 
 ## Installation this package to your project
 
@@ -28,16 +31,7 @@
 	DB_AUTH_DATABASE=db_name
     ```
 
-## Installation this project
-
-1. Run `npm` or `yarn` to install:
-	```
-	npm install
-	```
-
 ## Usage Examples
-
-
 ### Create Table Text Heap in Your DB
 
 ```sql
@@ -208,6 +202,25 @@ async function exampleGetHeapsByContent() {
 }
 
 exampleGetHeapsByContent();
+```
+
+### Test Search Full Content
+
+```typescript
+import CryptoTs from '../index';
+
+async function exampleGetHeapsByFullContent() {
+	try {
+		const inputValue = "ali.farhan160@yopmail.com"
+		const splitValue = CryptoTs.split(inputValue)
+        const result = await CryptoTs.searchContentFullText('email_text_heap', { contents: splitValue});
+        console.log('Result:', result);
+    } catch (error) {
+        console.error('Error fetching heaps by content:', error);
+    }
+}
+
+exampleGetHeapsByFullContent();
 ```
 
 ### Test Encrypt and Decrypt

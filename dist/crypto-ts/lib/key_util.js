@@ -43,18 +43,9 @@ function pkcs5UnPadding(src) {
     newLength = Math.abs(newLength);
     return src.slice(0, newLength);
 }
-function generateRandIV(buffer) {
-    try {
-        (0, crypto_1.randomFillSync)(buffer);
-    }
-    catch (err) {
-        throw new Error(`Failed to generate random IV: ${err.message}`);
-    }
-}
 exports.default = {
     checkKeyInput,
     generateRandomIV,
-    generateRandIV,
     pkcs5Padding,
     pkcs5UnPadding,
     KEY_SIZE_1KB,

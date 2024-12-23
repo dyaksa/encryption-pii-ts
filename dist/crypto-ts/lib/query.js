@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildBlindIndex = exports.searchContents = exports.saveToHeap = exports.buildHeap = exports.validateEmail = exports.getLast8Characters = exports.split = void 0;
+exports.buildBlindIndex = exports.searchContentFullText = exports.searchContents = exports.saveToHeap = exports.buildHeap = exports.validateEmail = exports.getLast8Characters = exports.split = void 0;
 const hmac_1 = require("./hmac");
 const types_1 = require("./types");
 require("reflect-metadata");
@@ -69,10 +69,11 @@ const buildHeap = (value, typeHeap) => {
     const builder = new Set();
     const heaps = [];
     values.forEach(val => {
-        const hash = (0, hmac_1.commonGenerateDigest)('SHA256', val);
+        const valToLower = val.toLocaleLowerCase();
+        const hash = (0, hmac_1.commonGenerateDigest)('SHA256', valToLower);
         const hash8LastChar = (0, exports.getLast8Characters)(hash);
         builder.add(hash8LastChar);
-        heaps.push({ content: val.toLowerCase(), type: typeHeap, hash: hash8LastChar });
+        heaps.push({ content: valToLower, type: typeHeap, hash: hash8LastChar });
     });
     return { str: Array.from(builder).join(''), heaps };
 };
@@ -119,7 +120,7 @@ exports.saveToHeap = saveToHeap;
 const searchContents = (table, args) => __awaiter(void 0, void 0, void 0, function* () {
     const dt = yield (0, config_1.dt_conf)();
     const query = `SELECT id, content, hash FROM ${table} WHERE content ILIKE '%' || $1 || '%'`;
-    const parameters = [args.content];
+    const parameters = [args.content.toLowerCase()];
     const result = yield dt.query(query, parameters);
     return result.map((row) => ({
         id: row.id,
@@ -128,6 +129,32 @@ const searchContents = (table, args) => __awaiter(void 0, void 0, void 0, functi
     }));
 });
 exports.searchContents = searchContents;
+// SearchContentFullText
+const searchContentFullText = (table, args) => __awaiter(void 0, void 0, void 0, function* () {
+    const dt = yield (0, config_1.dt_conf)();
+    const lowerCaseContents = args.contents.map((content) => content.toLowerCase());
+    const query = `SELECT id, content, hash FROM ${table} WHERE content = ANY($1::text[])`;
+    const parameters = [lowerCaseContents];
+    try {
+        const result = yield dt.query(query, parameters);
+        const sortedResult = args.contents.map(content => {
+            const row = result.find((row) => row.content.toLowerCase() === content.toLowerCase());
+            return row
+                ? {
+                    id: row.id,
+                    content: row.content,
+                    hash: row.hash,
+                }
+                : null;
+        }).filter(Boolean);
+        return sortedResult;
+    }
+    catch (error) {
+        console.error('Error executing searchContentFullText:', error);
+        throw error;
+    }
+});
+exports.searchContentFullText = searchContentFullText;
 // buildBlindIndex
 const buildBlindIndex = (entity) => __awaiter(void 0, void 0, void 0, function* () {
     const th = [];

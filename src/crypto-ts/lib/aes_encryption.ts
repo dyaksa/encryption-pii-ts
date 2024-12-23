@@ -4,6 +4,7 @@ import algorithms from './alg';
 import keyUtil from './key_util';
 import * as dotenv from 'dotenv';
 import { AesCipher } from './types';
+import { commonGenerateDigest } from './hmac';
 
 dotenv.config();
 
@@ -20,25 +21,27 @@ interface AlgorithmMeta {
 const getMetaFromAlgorithm = (alg: string): AlgorithmMeta => {
 	const algSplited = alg.split('-');
 	if (algSplited.length < 3) {
-        throw new Error('Invalid AES algorithm format. Expected format: AES_<keyLength>_<mode>');
-    }
+		throw new Error(
+			'Invalid AES algorithm format. Expected format: AES_<keyLength>_<mode>',
+		);
+	}
 
-    const keyLenInt = parseInt(algSplited[1], 10);
-    let ivLen;
+	const keyLenInt = parseInt(algSplited[1], 10);
+	let ivLen;
 
-    switch (algSplited[2].toLowerCase()) {
-        case 'cbc':
-            ivLen = 16;
-            break;
-        case 'ocb':
-            ivLen = 15; // Set to 15 for OCB mode, but can be adjusted as needed
-            break;
-        default:
-            ivLen = 12; // Default IV length
-            break;
-    }
+	switch (algSplited[2].toLowerCase()) {
+		case 'cbc':
+			ivLen = 16;
+			break;
+		case 'ocb':
+			ivLen = 15; // Set to 15 for OCB mode, but can be adjusted as needed
+			break;
+		default:
+			ivLen = 12; // Default IV length
+			break;
+	}
 
-    return { expectedKeyLen: keyLenInt / 8, mode: algSplited[2], ivLen };
+	return { expectedKeyLen: keyLenInt / 8, mode: algSplited[2], ivLen };
 };
 
 /**
@@ -48,51 +51,53 @@ const getMetaFromAlgorithm = (alg: string): AlgorithmMeta => {
  * @return {Buffer}
  */
 const decrypt = (alg: string, key: string, data: string | Buffer): string => {
-    // Ensure data is a valid type
-    if (typeof data !== 'object' && typeof data !== 'string') {
-        throw new Error('Error: data param should be an object or string');
-    }
+	// Ensure data is a valid type
+	if (typeof data !== 'object' && typeof data !== 'string') {
+		throw new Error('Error: data param should be an object or string');
+	}
 
-    const metaAlg = getMetaFromAlgorithm(alg);
+	const metaAlg = getMetaFromAlgorithm(alg);
 
-    // Validate key length
-    if (key.length !== metaAlg.expectedKeyLen) {
-        throw new Error(
-            `Invalid key length, key length should be ${metaAlg.expectedKeyLen}`,
-        );
-    }
+	// Validate key length
+	if (key.length !== metaAlg.expectedKeyLen) {
+		throw new Error(
+			`Invalid key length, key length should be ${metaAlg.expectedKeyLen}`,
+		);
+	}
 
-    const keyBuf = Buffer.from(key);
+	const keyBuf = Buffer.from(key);
 
-    if (keyBuf.length !== metaAlg.expectedKeyLen) {
-        throw new Error(
-            `Invalid key length after conversion, expected ${metaAlg.expectedKeyLen} bytes but got ${keyBuf.length} bytes`,
-        );
-    }
+	if (keyBuf.length !== metaAlg.expectedKeyLen) {
+		throw new Error(
+			`Invalid key length after conversion, expected ${metaAlg.expectedKeyLen} bytes but got ${keyBuf.length} bytes`,
+		);
+	}
 
-    // Convert data to a buffer if it's a string
-    const encryptedBufferTemp = Buffer.isBuffer(data) ? data : Buffer.from(data, 'hex');
+	// Convert data to a buffer if it's a string
+	const encryptedBufferTemp = Buffer.isBuffer(data)
+		? data
+		: Buffer.from(data, 'hex');
 
 	const asciiEncodedString = encryptedBufferTemp.toString('ascii');
 
 	const encryptedBuffer = Buffer.from(asciiEncodedString, 'hex');
 
-    if (encryptedBuffer.length < 16) {
-        throw new Error('Invalid encrypted data');
-    }
+	if (encryptedBuffer.length < 16) {
+		throw new Error('Invalid encrypted data');
+	}
 
-    // Extract IV (first 16 bytes) and the encrypted data
-    const iv = encryptedBuffer.slice(0, 16);
-    const encryptedData = encryptedBuffer.slice(16);
+	// Extract IV (first 16 bytes) and the encrypted data
+	const iv = encryptedBuffer.slice(0, 16);
+	const encryptedData = encryptedBuffer.slice(16);
 
-    if (encryptedData.length % 16 !== 0) {
-        throw new Error('Invalid encrypted data length');
-    }
+	if (encryptedData.length % 16 !== 0) {
+		throw new Error('Invalid encrypted data length');
+	}
 
-    // Create a decipher instance
-    const decipher = createDecipheriv(alg, keyBuf, iv);
-	
-    // Decrypt the data
+	// Create a decipher instance
+	const decipher = createDecipheriv(alg, keyBuf, iv);
+
+	// Decrypt the data
 	let decryptedData = Buffer.concat([
 		decipher.update(encryptedData),
 		decipher.final(),
@@ -104,7 +109,6 @@ const decrypt = (alg: string, key: string, data: string | Buffer): string => {
 	// Convert decrypted buffer to string
 	return decryptedData.toString('utf-8');
 };
-
 
 export const decryptWithAes = (type: string, data: string | Buffer): string => {
 	const key = process.env.CRYPTO_AES_KEY;
@@ -160,39 +164,40 @@ export const decryptWithAes = (type: string, data: string | Buffer): string => {
 const encrypt = (alg: string, key: string, data: string | Buffer): Buffer => {
 	const metaAlg = getMetaFromAlgorithm(alg);
 
-    // Validate key length
-    if (key.length !== metaAlg.expectedKeyLen) {
-        throw new Error(
-            `Invalid key length, key length should be ${metaAlg.expectedKeyLen}`
-        );
-    }
+	// Validate key length
+	if (key.length !== metaAlg.expectedKeyLen) {
+		throw new Error(
+			`Invalid key length, key length should be ${metaAlg.expectedKeyLen}`,
+		);
+	}
 
-    const keyBuf = Buffer.from(key);
+	const keyBuf = Buffer.from(key);
 
-    if (keyBuf.length !== metaAlg.expectedKeyLen) {
-        throw new Error(
-            `Invalid key length after conversion, expected ${metaAlg.expectedKeyLen} bytes but got ${keyBuf.length} bytes`
-        );
-    }
+	if (keyBuf.length !== metaAlg.expectedKeyLen) {
+		throw new Error(
+			`Invalid key length after conversion, expected ${metaAlg.expectedKeyLen} bytes but got ${keyBuf.length} bytes`,
+		);
+	}
 
-    // Apply PKCS#5 (PKCS#7) padding
-    const paddedData = keyUtil.pkcs5Padding(Buffer.from(data.toString('hex')));
+	// Apply PKCS#5 (PKCS#7) padding
+	const paddedData = keyUtil.pkcs5Padding(Buffer.from(data.toString('hex')));
 
-    // Generate a random IV of 16 bytes (for AES)
-    const iv = randomBytes(16);
+	// Generate a random IV of 16 bytes (for AES)
+	const iv = keyUtil.generateRandomIV(metaAlg.ivLen);
+	const ivBuf = Buffer.from(iv, 'hex');
 
-    // Create cipher instance
-    const cipher = createCipheriv(alg, keyBuf, iv);
+	// Create cipher instance
+	const cipher = createCipheriv(alg, keyBuf, ivBuf);
 
-    // Encrypt the padded data
-    const encryptedData = Buffer.concat([
-        iv,
+	// Encrypt the padded data
+	const encryptedData = Buffer.concat([
+		ivBuf,
 		cipher.update(paddedData),
-        cipher.final(),
-    ]);
+		cipher.final(),
+	]);
 
-    // Return the result as a Buffer
-    return Buffer.from(encryptedData.toString('hex'));
+	// Return the result as a Buffer
+	return Buffer.from(encryptedData.toString('hex'));
 };
 
 export const encryptWithAes = (type: string, data: string | Buffer): any => {
@@ -244,4 +249,23 @@ export const encryptWithAes = (type: string, data: string | Buffer): any => {
 	cipher.To = data.toString();
 
 	return cipher;
+};
+
+export const hashString = (data: string): string => {
+	return commonGenerateDigest('SHA256', data);
+};
+
+export const toMask = (data: string): string => {
+	if (typeof data === 'string') {
+		return data
+			.split('')
+			.map((char, index) => {
+				if (index < 3 || index >= data.length - 3) {
+					return char;
+				}
+				return '*';
+			})
+			.join('');
+	}
+	return '';
 };

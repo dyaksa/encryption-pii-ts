@@ -140,12 +140,13 @@ const encrypt = (alg, key, data) => {
     // Apply PKCS#5 (PKCS#7) padding
     const paddedData = key_util_1.default.pkcs5Padding(buffer_1.Buffer.from(data.toString('hex')));
     // Generate a random IV of 16 bytes (for AES)
-    const iv = (0, crypto_1.randomBytes)(16);
+    const iv = key_util_1.default.generateRandomIV(metaAlg.ivLen);
+    const ivBuf = buffer_1.Buffer.from(iv, 'hex');
     // Create cipher instance
-    const cipher = (0, crypto_1.createCipheriv)(alg, keyBuf, iv);
+    const cipher = (0, crypto_1.createCipheriv)(alg, keyBuf, ivBuf);
     // Encrypt the padded data
     const encryptedData = buffer_1.Buffer.concat([
-        iv,
+        ivBuf,
         cipher.update(paddedData),
         cipher.final(),
     ]);
